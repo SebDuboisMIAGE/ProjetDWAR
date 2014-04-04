@@ -9,6 +9,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Scanner;
 
 import javax.servlet.http.*;
 import javax.xml.parsers.DocumentBuilder;
@@ -25,21 +26,27 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.google.appengine.labs.repackaged.org.json.JSONObject;
+
 @SuppressWarnings("serial")
 public class ProjetServlet extends HttpServlet {
 	
-	public static String prefix_url = "http://maps.google.com/maps/api/geocode/xml";
+	public static String prefix_url = "http://maps.google.com/maps/api/geocode/json";
 	
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		resp.setContentType("text/html");
 		PrintWriter out = resp.getWriter();
 	
+		// Récupération des saisies dans le HTML
 		String departure = req.getParameter("from");
-		String arrivee = req.getParameter("to");		
-	    GPSCoordonate GPSdeparture = getXMLwithAdress(departure);
+		String arrivee = req.getParameter("to");
 		
-	    System.out.println("lat/lng=" + GPSdeparture.lat + "," + GPSdeparture.lng);	    
+		// Vérification par rapport à la TAN
+	    GPSCoordonate GPSdeparture = getJSONwithAdress(departure);
+	    GPSCoordonate GPSarrivee = getJSONwithAdress(arrivee);
+		
+	    
 		
 		out.println("<HTML><BODY>");
 		out.println("<H2>hello </H2>");
@@ -56,67 +63,29 @@ public class ProjetServlet extends HttpServlet {
 		out.println("</BODY></HTML>"); 
 	};
 	
-public GPSCoordonate getXMLwithAdress(String adress){
-	float lat = Float.NaN;
-    float lng = Float.NaN;
+public GPSCoordonate getJSONwithAdress(String adress){
 	try{
 		String url_build = prefix_url + "?address=" + URLEncoder.encode(adress, "UTF-8") + "&sensor=false";
-		System.out.println(url_build);
 		URL url = new URL(url_build);
-		// prepare an HTTP connection to the geocoder
-	    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-	
-	    Document geocoderResultDocument = null;
-	    try {
-	      // open the connection and get results as InputSource.
-	      conn.connect();
-	      InputSource geocoderResultInputSource = new InputSource(conn.getInputStream());
-	
-	      // read result and parse into XML Document
-	      geocoderResultDocument = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(geocoderResultInputSource);
-	    } finally {
-	      conn.disconnect();
-	    }	
-	    // prepare XPath
-	    XPath xpath = XPathFactory.newInstance().newXPath();
-	
-	    // extract the result
-	    NodeList resultNodeList = null;
+		// read from the URL
+	    Scanner scan = new Scanner(url.openStream());
+	    String str = new String();
+	    while (scan.hasNext())
+	        str += scan.nextLine();
+	    scan.close();
+	 
+	    // build a JSON object
+	    JSONObject obj = new JSONObject(str);
+	 
+	    // get the first result
+	    JSONObject res = obj.getJSONArray("results").getJSONObject(0);
+	    JSONObject loc = res.getJSONObject("geometry").getJSONObject("location");
 	    
-	    //extract the coordinates of the first result
-	    try {
-			resultNodeList = (NodeList) xpath.evaluate("/GeocodeResponse/result[1]/geometry/location/*", geocoderResultDocument, XPathConstants.NODESET);
-		} catch (XPathExpressionException e) {
-			// TODO Bloc catch généré automatiquement
-			e.printStackTrace();
-		}    
-	    
-	    for(int i=0; i<resultNodeList.getLength(); ++i) {
-	      Node node = resultNodeList.item(i);
-	      
-	      if("lat".equals(node.getNodeName())){
-	    	  lat = Float.parseFloat(node.getTextContent());
-	      }
-	      if("lng".equals(node.getNodeName())) lng = Float.parseFloat(node.getTextContent());
-	    }
-	    return new GPSCoordonate(lat,lng);
+	    return new GPSCoordonate(loc.getDouble("lat"),loc.getDouble("lng"));
 	}
 	catch(Exception e){
 		e.printStackTrace();
 		return null;
 	}	
-}
-
-public static String get(String url) throws IOException{
- 
-	String source ="";
-	URL oracle = new URL(url);
-	BufferedReader in = new BufferedReader(new InputStreamReader(oracle.openStream()));
-	String inputLine;
-	 
-	while ((inputLine = in.readLine()) != null)
-	source +=inputLine;
-	in.close();
-	return source;
 }
 }

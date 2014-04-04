@@ -1,10 +1,10 @@
 package app;
 
 public class GPSCoordonate {
-	public float lat;
-	public float lng;
+	public double lat;
+	public double lng;
 	
-	public GPSCoordonate(float latitude, float longitude)
+	public GPSCoordonate(double latitude, double longitude)
 	{
 		this.lat = latitude;
 		this.lng = longitude;
