@@ -44,9 +44,7 @@ public class ProjetServlet extends HttpServlet {
 		
 		// Vérification par rapport à la TAN
 	    GPSCoordonate GPSdeparture = getJSONwithAdress(departure);
-	    GPSCoordonate GPSarrivee = getJSONwithAdress(arrivee);
-		
-	    
+	    GPSCoordonate GPSarrivee = getJSONwithAdress(arrivee);	    
 		
 		out.println("<HTML><BODY>");
 		out.println("<H2>hello </H2>");
