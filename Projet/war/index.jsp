@@ -8,6 +8,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <html>
   <head>
+  	<title>SmartTraveler</title>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
     <style type="text/css">
       html { height: 100% }
@@ -33,18 +34,44 @@
 	  google.maps.event.addDomListener(window, 'load', initialize);
     </script>
   </head>
-  <body>  	
+  <body>
+  	<h1>SmartTraveler</h1>  	
   	<div id="Recherche">
   		<c:out value="Itinéraire" />
-  		<form name="input" action="http://localhost:8888/projet" method="post">
+  		<form name="input" action=<c:url value="http://localhost:8888/projet"/> method="post">
 	  		<div id="departure">
-	  			<input type="text" name="from" id="from" value="" tabindex="1" placeholder="Départ" class="valid" autocomplete="off">
+	  			<lable>Départ : <input type="text" name="from" id="from" value="<c:out value="${donnees.departure}"/>" tabindex="1" placeholder="Départ" class="valid" autocomplete="off"></lable>
 	  		</div>
 	  		<div id="arrival">
-	  			<input type="text" name="to" id="to" value="" tabindex="1" placeholder="Arrivée" class="valid" autocomplete="off">
+	  			<label>Arrivée : <input type="text" name="to" id="to" value="<c:out value="${donnees.arrival}"/>" tabindex="1" placeholder="Arrivée" class="valid" autocomplete="off"></label>
 	  		</div>
-	  		<input type="submit" class="submitItinerary" value="Rechercher">
+	  		<input type="submit" class="submitItinerary" value="Go !">
 	  	</form>
+  	</div>
+  	<div id="Resultats_Google">
+  		<div id="res_depart">
+  			Adresse de départ : 
+  			<c:out value="${itineraire.departure}"></c:out>
+  		</div>
+  		<div id="res_arrivee">
+  			Adresse de destination : 
+  			<c:out value="${itineraire.arrivee}"></c:out>
+  		</div>
+  		<div id="res_duree">
+  			Durée : 
+  			<c:out value="${itineraire.duration}"></c:out>
+  		</div>
+  		<div id="res_distance">
+  			Distance : 
+  			<c:out value="${itineraire.distance}"></c:out> km
+  		</div>
+  		<div id="res_consigne">
+  			Trajet :
+  			<c:forEach items="${itineraire.steps}" var="step">
+  				<c:out value="${step.value.consigne}"></c:out>
+  			</c:forEach> 
+  			
+  		</div>
   	</div>	
 	<div id="map-canvas"/> 
   </body>

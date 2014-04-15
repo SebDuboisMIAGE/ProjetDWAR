@@ -11,6 +11,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Scanner;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -26,10 +27,12 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import beans.Donnees;
 import beans.GPSCoordonate;
 import beans.Itineraire;
 import beans.PointItineraire;
 
+import beans.Donnees;
 import com.google.appengine.labs.repackaged.org.json.JSONArray;
 import com.google.appengine.labs.repackaged.org.json.JSONObject;
 
@@ -39,25 +42,45 @@ public class ProjetServlet extends HttpServlet {
 	public static String prefix_url_geocode = "https://maps.google.com/maps/api/geocode/json";
 	public static String prefix_url_direction = "https://maps.googleapis.com/maps/api/directions/json";
 	
+	public void doGet(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
+		this.getServletContext().getRequestDispatcher("/index.jsp")
+				.forward(request, response);
+	}
+	
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
+			throws IOException, ServletException {
 		resp.setContentType("text/html");
 		PrintWriter out = resp.getWriter();
 	
-		// Récupération des saisies dans le HTML
+		// Rï¿½cupï¿½ration des saisies dans le HTML
 		String departure = req.getParameter("from");
 		String arrivee = req.getParameter("to");
 		
-		// Récupération de l'itinéraire
+		// Rï¿½cupï¿½ration de l'itinï¿½raire
 		Itineraire itineraire = getItineraire(departure, arrivee);
 
-		// Vérification de la disponibilité des adresses de la TAN
-		System.out.println(itineraire.getArrivee());
+		// Vï¿½rification de la disponibilitï¿½ des adresses de la TAN
 	    
+		/*
+		 * Chargement des donnÃ©es Ã  envoyer Ã  la JSP
+		 */
+		Donnees data = new Donnees();
+		data.setDeparture(departure);
+		data.setArrival(arrivee);
+		req.setAttribute("donnees", data);
+		req.setAttribute("itineraire",itineraire);
+		
+		/*
+		 * Transmission Ã  la page JSP en charge de l'affichage des donnÃ©es
+		 */
+		this.getServletContext().getRequestDispatcher("/index.jsp")
+				.forward(req, resp);
+		
 	};
 
 /*
- * Fonction permettant de renvoyer les coordonnées GPS d'une adresse
+ * Fonction permettant de renvoyer les coordonnï¿½es GPS d'une adresse
  * - Latitude
  * - Longitude
  */
@@ -92,14 +115,14 @@ public GPSCoordonate getJSONwithAdress(String adress){
 }
 
 /*
- * Fonction permettant de récupérer toutes les informations d'un itinéraire
- * - Départ
- * - Arrivée
- * - Durée
+ * Fonction permettant de rï¿½cupï¿½rer toutes les informations d'un itinï¿½raire
+ * - Dï¿½part
+ * - Arrivï¿½e
+ * - Durï¿½e
  * - Distance
- * - Steps (PointItineraire) :	- Départ
- * 								- Arrivée
- * 								- Durée
+ * - Steps (PointItineraire) :	- Dï¿½part
+ * 								- Arrivï¿½e
+ * 								- Durï¿½e
  * 								- Distance
  * 								- Consigne
  */
