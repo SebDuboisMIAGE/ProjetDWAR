@@ -1,11 +1,20 @@
 package beans;
 
-public class PointItinéraire {
+public class PointItineraire {
 
 	private GPSCoordonate depart;
 	private GPSCoordonate arrivee;
-	private float duree;
+	private double duree;
 	private String consigne;
+	private double distance;
+	
+	public double getDistance() {
+		return distance;
+	}
+	
+	public void setDistance(double distance) {
+		this.distance = distance;
+	}
 	
 	public GPSCoordonate getArrivee() {
 		return arrivee;
@@ -19,7 +28,7 @@ public class PointItinéraire {
 		return depart;
 	}
 	
-	public float getDuree() {
+	public double getDuree() {
 		return duree;
 	}
 	
@@ -35,7 +44,7 @@ public class PointItinéraire {
 		this.depart = depart;
 	}
 	
-	public void setDuree(float duree) {
+	public void setDuree(double duree) {
 		this.duree = duree;
 	}
 }
