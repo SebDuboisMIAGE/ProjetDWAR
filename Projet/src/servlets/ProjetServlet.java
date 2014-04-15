@@ -50,15 +50,17 @@ public class ProjetServlet extends HttpServlet {
 		
 		// Récupération de l'itinéraire
 		Itineraire itineraire = getItineraire(departure, arrivee);
-		
+
+		// Vérification de la disponibilité des adresses de la TAN
 		System.out.println(itineraire.getArrivee());
-		// Vérification par rapport à la TAN
-	    //GPSCoordonate GPSdeparture = getJSONwithAdress(departure);
-	    //GPSCoordonate GPSarrivee = getJSONwithAdress(arrivee);	    
-		
-	    //System.out.println(GPSdeparture.getLat());
+	    
 	};
-	
+
+/*
+ * Fonction permettant de renvoyer les coordonnées GPS d'une adresse
+ * - Latitude
+ * - Longitude
+ */
 public GPSCoordonate getJSONwithAdress(String adress){
 	try{
 		String url_build = prefix_url_geocode + "?address=" + URLEncoder.encode(adress, "UTF-8") + "&sensor=false&key=AIzaSyA3ol1gtWbndHLBeXy0AWIDFDBx6JnLMZA";
@@ -89,6 +91,18 @@ public GPSCoordonate getJSONwithAdress(String adress){
 	}	
 }
 
+/*
+ * Fonction permettant de récupérer toutes les informations d'un itinéraire
+ * - Départ
+ * - Arrivée
+ * - Durée
+ * - Distance
+ * - Steps (PointItineraire) :	- Départ
+ * 								- Arrivée
+ * 								- Durée
+ * 								- Distance
+ * 								- Consigne
+ */
 public Itineraire getItineraire(String departure, String arrivee){
 	try{
 		String url_build = prefix_url_direction + "?origin=" + URLEncoder.encode(departure, "UTF-8") + "&destination=" + URLEncoder.encode(arrivee, "UTF-8") + "&sensor=false&key=AIzaSyA3ol1gtWbndHLBeXy0AWIDFDBx6JnLMZA";
