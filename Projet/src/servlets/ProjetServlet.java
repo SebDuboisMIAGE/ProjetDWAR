@@ -1,4 +1,4 @@
-package app;
+package servlets;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -26,12 +26,14 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import beans.GPSCoordonate;
+
 import com.google.appengine.labs.repackaged.org.json.JSONObject;
 
 @SuppressWarnings("serial")
 public class ProjetServlet extends HttpServlet {
 	
-	public static String prefix_url = "http://maps.google.com/maps/api/geocode/json";
+	public static String prefix_url = "https://maps.google.com/maps/api/geocode/json";
 	
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
@@ -46,24 +48,12 @@ public class ProjetServlet extends HttpServlet {
 	    GPSCoordonate GPSdeparture = getJSONwithAdress(departure);
 	    GPSCoordonate GPSarrivee = getJSONwithAdress(arrivee);	    
 		
-		out.println("<HTML><BODY>");
-		out.println("<H2>hello </H2>");
-		out.println("<BR><BR>");
-		out.println("info:");
-		out.println("<BR><BR>");
-		out.println("<H2>metoda GET</H2>");
-		//out.println("<BR>"+ geocoderResponse.getResults().get(0).getGeometry().getLocation().getLat().toString() +"<BR>");
-		out.println("SERVER_NAME=<BR>");
-		out.println("REQUEST_METHOD=<BR>");
-		out.println("QUERY_STRING=<BR>");
-		out.println("REMOTE_HOST=<BR>");
-		out.println("REMOTE_ADDR=");
-		out.println("</BODY></HTML>"); 
+	    System.out.println(GPSdeparture.lat);
 	};
 	
 public GPSCoordonate getJSONwithAdress(String adress){
 	try{
-		String url_build = prefix_url + "?address=" + URLEncoder.encode(adress, "UTF-8") + "&sensor=false";
+		String url_build = prefix_url + "?address=" + URLEncoder.encode(adress, "UTF-8") + "&sensor=false&key=AIzaSyA3ol1gtWbndHLBeXy0AWIDFDBx6JnLMZA";
 		URL url = new URL(url_build);
 		// read from the URL
 	    Scanner scan = new Scanner(url.openStream());

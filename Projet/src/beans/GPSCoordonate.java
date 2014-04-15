@@ -1,4 +1,4 @@
-package app;
+package beans;
 
 public class GPSCoordonate {
 	public double lat;

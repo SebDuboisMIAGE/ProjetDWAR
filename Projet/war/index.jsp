@@ -5,7 +5,7 @@
 <!-- "Quirks Mode". Replacing this declaration     -->
 <!-- with a "Standards Mode" doctype is supported, -->
 <!-- but may lead to some differences in layout.   -->
-
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <html>
   <head>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
@@ -33,9 +33,9 @@
 	  google.maps.event.addDomListener(window, 'load', initialize);
     </script>
   </head>
-  <body>
+  <body>  	
   	<div id="Recherche">
-  		Itinéraire
+  		<c:out value="Itinéraire" />
   		<form name="input" action="http://localhost:8888/projet" method="post">
 	  		<div id="departure">
 	  			<input type="text" name="from" id="from" value="" tabindex="1" placeholder="Départ" class="valid" autocomplete="off">
