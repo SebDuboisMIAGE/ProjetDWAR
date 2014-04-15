@@ -48,7 +48,7 @@ public class ProjetServlet extends HttpServlet {
 	    GPSCoordonate GPSdeparture = getJSONwithAdress(departure);
 	    GPSCoordonate GPSarrivee = getJSONwithAdress(arrivee);	    
 		
-	    System.out.println(GPSdeparture.lat);
+	    System.out.println(GPSdeparture.getLat());
 	};
 	
 public GPSCoordonate getJSONwithAdress(String adress){
@@ -69,7 +69,11 @@ public GPSCoordonate getJSONwithAdress(String adress){
 	    JSONObject res = obj.getJSONArray("results").getJSONObject(0);
 	    JSONObject loc = res.getJSONObject("geometry").getJSONObject("location");
 	    
-	    return new GPSCoordonate(loc.getDouble("lat"),loc.getDouble("lng"));
+	    GPSCoordonate coord = new GPSCoordonate();
+	    coord.setLat(loc.getDouble("lat"));
+	    coord.setLng(loc.getDouble("lng"));
+	    	    
+	    return coord;
 	}
 	catch(Exception e){
 		e.printStackTrace();
