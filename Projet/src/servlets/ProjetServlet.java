@@ -1,17 +1,24 @@
 package servlets;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -27,12 +34,11 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import beans.Donnees;
 import beans.GPSCoordonate;
 import beans.Itineraire;
 import beans.PointItineraire;
 
-import beans.Donnees;
+import com.google.appengine.api.datastore.Text;
 import com.google.appengine.labs.repackaged.org.json.JSONArray;
 import com.google.appengine.labs.repackaged.org.json.JSONObject;
 
@@ -42,45 +48,32 @@ public class ProjetServlet extends HttpServlet {
 	public static String prefix_url_geocode = "https://maps.google.com/maps/api/geocode/json";
 	public static String prefix_url_direction = "https://maps.googleapis.com/maps/api/directions/json";
 	
-	public void doGet(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
-		this.getServletContext().getRequestDispatcher("/index.jsp")
-				.forward(request, response);
-	}
-	
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException, ServletException {
+			throws IOException {
 		resp.setContentType("text/html");
 		PrintWriter out = resp.getWriter();
 	
-		// Rï¿½cupï¿½ration des saisies dans le HTML
+		// Récupération des saisies dans le HTML
 		String departure = req.getParameter("from");
 		String arrivee = req.getParameter("to");
 		
-		// Rï¿½cupï¿½ration de l'itinï¿½raire
+		// Récupération de l'itinéraire
 		Itineraire itineraire = getItineraire(departure, arrivee);
 
-		// Vï¿½rification de la disponibilitï¿½ des adresses de la TAN
-	    
-		/*
-		 * Chargement des donnÃ©es Ã  envoyer Ã  la JSP
-		 */
-		Donnees data = new Donnees();
-		data.setDeparture(departure);
-		data.setArrival(arrivee);
-		req.setAttribute("donnees", data);
-		req.setAttribute("itineraire",itineraire);
+		// Vérification de la disponibilité des adresses de la TAN
+		System.out.println(itineraire.getArrivee());
 		
-		/*
-		 * Transmission Ã  la page JSP en charge de l'affichage des donnÃ©es
-		 */
-		this.getServletContext().getRequestDispatcher("/index.jsp")
-				.forward(req, resp);
-		
+		// Requete TAN
+		try {
+			getTaN(departure);
+		} catch (Exception e) {
+			// TODO Bloc catch généré automatiquement
+			e.printStackTrace();
+		}	    
 	};
 
 /*
- * Fonction permettant de renvoyer les coordonnï¿½es GPS d'une adresse
+ * Fonction permettant de renvoyer les coordonnées GPS d'une adresse
  * - Latitude
  * - Longitude
  */
@@ -115,14 +108,14 @@ public GPSCoordonate getJSONwithAdress(String adress){
 }
 
 /*
- * Fonction permettant de rï¿½cupï¿½rer toutes les informations d'un itinï¿½raire
- * - Dï¿½part
- * - Arrivï¿½e
- * - Durï¿½e
+ * Fonction permettant de récupérer toutes les informations d'un itinéraire
+ * - Départ
+ * - Arrivée
+ * - Durée
  * - Distance
- * - Steps (PointItineraire) :	- Dï¿½part
- * 								- Arrivï¿½e
- * 								- Durï¿½e
+ * - Steps (PointItineraire) :	- Départ
+ * 								- Arrivée
+ * 								- Durée
  * 								- Distance
  * 								- Consigne
  */
@@ -173,5 +166,84 @@ public Itineraire getItineraire(String departure, String arrivee){
 		e.printStackTrace();
 		return null;
 	}	
+}
+
+public void getTaN(String departure) throws Exception
+{
+	String urlParameters =
+	        "nom=" + URLEncoder.encode("nantes", "UTF-8");
+	URL url;
+    HttpURLConnection connection = null;  
+    try {
+      //Create connection
+      url = new URL("https://www.tan.fr/ewp/mhv.php/itineraire/address.json");
+      connection = (HttpURLConnection)url.openConnection();
+      connection.setRequestMethod("POST");
+      connection.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
+			
+      connection.setRequestProperty("Content-Length", "" + 
+               Integer.toString(urlParameters.getBytes().length));
+      connection.setRequestProperty("Content-Language", "en-US");  
+			
+      connection.setUseCaches (false);
+      connection.setDoInput(true);
+      connection.setDoOutput(true);
+
+      //Send request
+      DataOutputStream wr = new DataOutputStream (
+                  connection.getOutputStream ());
+      wr.writeBytes (urlParameters);
+      wr.flush ();
+      wr.close ();
+
+      //Get Response	
+      InputStream is = connection.getInputStream();
+      BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+      String line;
+      StringBuffer response = new StringBuffer(); 
+      while((line = rd.readLine()) != null) {
+        response.append(line);
+        response.append('\r');
+      }
+      rd.close();
+      System.out.println(response.toString());
+
+    } catch (Exception e) {
+
+      e.printStackTrace();
+    } finally {
+
+      if(connection != null) {
+        connection.disconnect(); 
+      }
+    }	
+	
+	/*
+	try{
+		URL url = new URL("https://www.tan.fr/ewp/mhv.php/itineraire/address.json?nom=nantes");
+		HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+		connection.setRequestMethod("POST"); 
+		String charset = "UTF-8"; 
+		String qry = URLEncoder.encode("&nom=nantes",charset); 
+		connection.setRequestProperty("Accept-Charset", charset); 
+		connection.setRequestProperty("Content-Type", "application/x-ww-form-urlencoded"); 
+		connection.setRequestProperty("Content-Length", ""+Integer.toString(qry.getBytes().length)); 
+		connection.setDoInput(true); 
+		connection.setDoOutput(true); 
+		
+		InputStream _is;  
+		if (connection.getResponseCode() >= 400) {  
+		    _is = connection.getInputStream();  
+		} else {  
+		     
+		    _is = connection.getErrorStream();  
+		}
+		
+		
+	}
+	catch (Exception e)
+	{
+		throw e;
+	}*/
 }
 }
