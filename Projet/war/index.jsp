@@ -67,9 +67,11 @@
   		</div>
   		<div id="res_consigne">
   			Trajet :
+  			<!--
   			<c:forEach items="${itineraire.steps}" var="step">
   				<c:out value="${step.value.consigne}"></c:out>
-  			</c:forEach> 
+  			</c:forEach>
+  			-->
   			
   		</div>
   	</div>	
