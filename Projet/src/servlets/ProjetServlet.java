@@ -36,6 +36,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import beans.Donnees;
 import beans.GPSCoordonate;
 import beans.TrajetGoogle;
 import beans.EtapeGoogle;
@@ -69,22 +70,33 @@ public class ProjetServlet extends HttpServlet {
 		// Récupération des informations saisies par l'utilisateur
 		String departure = req.getParameter("from");
 		String arrivee = req.getParameter("to");
+		
+		Donnees data = new Donnees();
+		data.setArrival(arrivee);
+		data.setDeparture(departure);
+		
+		System.out.println(data.getArrival());
+		System.out.println(data.getDeparture());
+		
+		req.setAttribute("donnees", data);
+		
 
 		// Récupération du trajet Google
 		try {
 			TrajetGoogle trajetGoogle = setTrajetGoogle(getTrajetGoogle(departure, arrivee));
-			System.out.println("Google : \n  Départ : "+trajetGoogle.getDeparture()+"\n  Arrivée : "+trajetGoogle.getArrivee());
+			System.out.println("Google : \n  Départ : "+trajetGoogle.getDeparture()+"\n  Arrivée : "+trajetGoogle.getArrival());
+			req.setAttribute("TrajetGoogle", trajetGoogle);
 		} catch (JSONException e1) {
-			// TODO Auto-generated catch block
+			// TODO
 			e1.printStackTrace();
 		}
 
 		// Vérification de la disponibilité des adresses de la TAN
 		// System.out.println(itineraire.getArrivee());
 
-		// req.setAttribute("itineraire", itineraire);
+		
 
-		// this.getServletContext().getRequestDispatcher("/projet").forward(req,resp);
+		this.getServletContext().getRequestDispatcher("/index.jsp").forward(req,resp);
 
 		// Requete TAN
 
@@ -172,7 +184,7 @@ public class ProjetServlet extends HttpServlet {
 		itineraire.setDistance(info.getJSONObject("duration")
 				.getDouble("value"));
 		itineraire.setDeparture(info.getString("start_address"));
-		itineraire.setArrivee(info.getString("end_location"));
+		itineraire.setArrival(info.getString("end_address"));
 		JSONArray list = info.getJSONArray("steps");
 		// set Etapes
 		EtapeGoogle step = new EtapeGoogle();

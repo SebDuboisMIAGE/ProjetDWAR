@@ -8,11 +8,11 @@ public class TrajetGoogle {
 	private double distance;  // en m
 	private double duration; // en m
 	private String departure;
-	private String arrivee;
+	private String arrival;
 	private List<EtapeGoogle> steps;
 	
-	public String getArrivee() {
-		return arrivee;
+	public String getArrival() {
+		return arrival;
 	}
 	
 	public String getDeparture() {
@@ -27,8 +27,8 @@ public class TrajetGoogle {
 		return duration;
 	}
 	
-	public void setArrivee(String arrivee) {
-		this.arrivee = arrivee;
+	public void setArrival(String arrivee) {
+		this.arrival = arrivee;
 	}
 	
 	public void setDeparture(String departure) {
