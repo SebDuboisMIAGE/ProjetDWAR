@@ -52,6 +52,7 @@ public class ProjetServlet extends HttpServlet {
 
 	public static String prefix_url_geocode = "https://maps.google.com/maps/api/geocode/json";
 	public static String prefix_url_direction = "https://maps.googleapis.com/maps/api/directions/json";
+	public static String key ="AIzaSyA3ol1gtWbndHLBeXy0AWIDFDBx6JnLMZA";
 
 	/*
 	 * public void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -79,7 +80,7 @@ public class ProjetServlet extends HttpServlet {
 		System.out.println(data.getDeparture());
 		
 		req.setAttribute("donnees", data);
-		
+		req.setAttribute("carte", "carte");
 
 		// Récupération du trajet Google
 		try {
@@ -119,7 +120,8 @@ public class ProjetServlet extends HttpServlet {
 			String url_build = prefix_url_geocode
 					+ "?address="
 					+ URLEncoder.encode(adress, "UTF-8")
-					+ "&sensor=false&key=AIzaSyA3ol1gtWbndHLBeXy0AWIDFDBx6JnLMZA";
+					+ "&sensor=false&key="
+					+ key;
 			URL url = new URL(url_build);
 			// read from the URL
 			Scanner scan = new Scanner(url.openStream());
@@ -158,7 +160,8 @@ public class ProjetServlet extends HttpServlet {
 		String url_build = prefix_url_direction + "?origin="
 				+ URLEncoder.encode(departure, "UTF-8") + "&destination="
 				+ URLEncoder.encode(arrivee, "UTF-8")
-				+ "&sensor=false&key=AIzaSyA3ol1gtWbndHLBeXy0AWIDFDBx6JnLMZA";
+				+ "&sensor=false&key="
+				+ key;
 		URL url = new URL(url_build);
 		// read from the URL
 		System.out.println(url_build);
@@ -185,8 +188,19 @@ public class ProjetServlet extends HttpServlet {
 				.getDouble("value"));
 		itineraire.setDeparture(info.getString("start_address"));
 		itineraire.setArrival(info.getString("end_address"));
-		JSONArray list = info.getJSONArray("steps");
+		
+		// set GPS departure and arrival
+		GPSCoordonate departGPS = new GPSCoordonate();
+		departGPS.setLat(info.getJSONObject("start_location").getDouble("lat"));
+		departGPS.setLng(info.getJSONObject("start_location").getDouble("lng"));
+		itineraire.setDepartureGPS(departGPS);
+		GPSCoordonate arriveeGPS = new GPSCoordonate();
+		arriveeGPS.setLat(info.getJSONObject("end_location").getDouble("lat"));
+		arriveeGPS.setLng(info.getJSONObject("end_location").getDouble("lng"));
+		itineraire.setDepartureGPS(arriveeGPS);
+		
 		// set Etapes
+		JSONArray list = info.getJSONArray("steps");
 		EtapeGoogle step = new EtapeGoogle();
 		for (int i = 0; i < list.length(); ++i) {
 			JSONObject item = list.getJSONObject(i);

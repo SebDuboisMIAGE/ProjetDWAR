@@ -56,7 +56,7 @@ body {
 			mapTypeId : google.maps.MapTypeId.ROADMAP
 		};
 
-		var map = new google.maps.Map(document.getElementById("carte"),
+		var carte = new google.maps.Map(document.getElementById("carte"),
 				mapOptions);
 		//création des marqueurs de départ et d'arrivée
 		var depart = new google.maps.Marker({
@@ -147,6 +147,6 @@ body {
   	-->
 	</div>
 
-	<div id="carte" style="width: 100%; height: 100%" />
+	<div id='<c:out value="${carte}"/>' style="width: 100%; height: 100%" ></div>
 </body>
 </html>
