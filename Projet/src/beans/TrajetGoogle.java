@@ -5,8 +5,8 @@ import java.util.List;
 
 public class TrajetGoogle {
 
-	private double distance;  // en m
-	private double duration; // en m
+	private String distance;  // en m
+	private String duration; // en m
 	private String departure;
 	private String arrival;
 	private GPSCoordonate departureGPS;
@@ -37,11 +37,11 @@ public void setDepartureGPS(GPSCoordonate departureGPS) {
 		return departure;
 	}
 	
-	public double getDistance() {
+	public String getDistance() {
 		return distance;
 	}
 	
-	public double getDuration() {
+	public String getDuration() {
 		return duration;
 	}
 	
@@ -53,11 +53,11 @@ public void setDepartureGPS(GPSCoordonate departureGPS) {
 		this.departure = departure;
 	}
 	
-	public void setDistance(double distance) {
+	public void setDistance(String distance) {
 		this.distance = distance;
 	}
 	
-	public void setDuration(double duration) {
+	public void setDuration(String duration) {
 		this.duration = duration;
 	}
 	

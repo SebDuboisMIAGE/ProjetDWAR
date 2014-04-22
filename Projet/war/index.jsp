@@ -60,11 +60,11 @@ body {
 				mapOptions);
 		//création des marqueurs de départ et d'arrivée
 		var depart = new google.maps.Marker({
-			position : new google.maps.LatLng(46.779231, 6.659431),
+			position : new google.maps.LatLng('<c:out value="${TrajetGoogle.departureGPS.lat}"/>', '<c:out value="${TrajetGoogle.departureGPS.lng}"/>'),
 			map : carte
 		});
 		var arrivee = new google.maps.Marker({
-			position : new google.maps.LatLng(45.779231, 6.659431),
+			position : new google.maps.LatLng('<c:out value="${TrajetGoogle.arrivalGPS.lat}"/>', '<c:out value="${TrajetGoogle.arrivalGPS.lng}"/>'),
 			map : carte
 		});
 
@@ -102,7 +102,7 @@ body {
 	<div id="Recherche">
 		<c:out value="Itinéraire" />
 		<form name="input"
-			action=<c:url value="http://localhost:8888/projet"/> method="post">
+			action=<c:url value="/projet"/> method="post">
 			<div id="departure">
 				<label>Départ : <input type="text" name="from" id="from"
 					value="<c:out value="${donnees.departure}"/>" tabindex="1"

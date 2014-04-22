@@ -183,9 +183,9 @@ public class ProjetServlet extends HttpServlet {
 
 		TrajetGoogle itineraire = new TrajetGoogle();
 		itineraire.setDistance(info.getJSONObject("distance")
-				.getDouble("value"));
-		itineraire.setDistance(info.getJSONObject("duration")
-				.getDouble("value"));
+				.getString("text"));
+		itineraire.setDuration(info.getJSONObject("duration")
+				.getString("text"));
 		itineraire.setDeparture(info.getString("start_address"));
 		itineraire.setArrival(info.getString("end_address"));
 		
@@ -197,7 +197,7 @@ public class ProjetServlet extends HttpServlet {
 		GPSCoordonate arriveeGPS = new GPSCoordonate();
 		arriveeGPS.setLat(info.getJSONObject("end_location").getDouble("lat"));
 		arriveeGPS.setLng(info.getJSONObject("end_location").getDouble("lng"));
-		itineraire.setDepartureGPS(arriveeGPS);
+		itineraire.setArrivalGPS(arriveeGPS);
 		
 		// set Etapes
 		JSONArray list = info.getJSONArray("steps");
