@@ -1,5 +1,7 @@
 package beans;
 
+import java.util.List;
+
 public class EtapeGoogle {
 
 	private GPSCoordonate depart;
@@ -7,6 +9,15 @@ public class EtapeGoogle {
 	private double duree;
 	private String consigne;
 	private double distance;
+	public List<GPSCoordonate> getWay() {
+		return way;
+	}
+
+	public void setWay(List<GPSCoordonate> way) {
+		this.way = way;
+	}
+
+	private List<GPSCoordonate> way;
 	
 	public double getDistance() {
 		return distance;

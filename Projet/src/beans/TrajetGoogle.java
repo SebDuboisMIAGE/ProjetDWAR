@@ -12,7 +12,7 @@ public class TrajetGoogle {
 	private GPSCoordonate departureGPS;
 	private GPSCoordonate arrivalGPS;
 	private List<EtapeGoogle> steps;
-	
+		
 	public GPSCoordonate getArrivalGPS() {
 		return arrivalGPS;
 	}

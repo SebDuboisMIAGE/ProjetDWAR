@@ -84,9 +84,12 @@ public class ProjetServlet extends HttpServlet {
 
 		// Récupération du trajet Google
 		try {
-			TrajetGoogle trajetGoogle = setTrajetGoogle(getTrajetGoogle(departure, arrivee));
-			System.out.println("Google : \n  Départ : "+trajetGoogle.getDeparture()+"\n  Arrivée : "+trajetGoogle.getArrival());
-			req.setAttribute("TrajetGoogle", trajetGoogle);
+			TrajetGoogle trajetGoogleDriving = setTrajetGoogle(getTrajetGoogle(departure, arrivee, "driving"));
+			req.setAttribute("TrajetGoogleDriving", trajetGoogleDriving);
+			TrajetGoogle trajetGoogleBiking = setTrajetGoogle(getTrajetGoogle(departure, arrivee, "bicycling"));
+			req.setAttribute("TrajetGoogleBicycling", trajetGoogleBiking);
+			TrajetGoogle trajetGoogleWalking = setTrajetGoogle(getTrajetGoogle(departure, arrivee, "walking"));
+			req.setAttribute("TrajetGoogleWalking", trajetGoogleWalking);
 		} catch (JSONException e1) {
 			// TODO
 			e1.printStackTrace();
@@ -155,12 +158,13 @@ public class ProjetServlet extends HttpServlet {
 	 * - Départ - Arrivée - Durée - Distance - Steps (PointItineraire) : -
 	 * Départ - Arrivée - Durée - Distance - Consigne
 	 */
-	public JSONObject getTrajetGoogle(String departure, String arrivee)
+	public JSONObject getTrajetGoogle(String departure, String arrivee, String transport)
 			throws IOException, JSONException {
 		String url_build = prefix_url_direction + "?origin="
 				+ URLEncoder.encode(departure, "UTF-8") + "&destination="
-				+ URLEncoder.encode(arrivee, "UTF-8")
-				+ "&sensor=false&key="
+				+ URLEncoder.encode(arrivee, "UTF-8") 
+				+ "&mode=" + URLEncoder.encode(transport, "UTF-8")
+				+ "&language=FR&sensor=false&key="
 				+ key;
 		URL url = new URL(url_build);
 		// read from the URL
@@ -198,11 +202,11 @@ public class ProjetServlet extends HttpServlet {
 		arriveeGPS.setLat(info.getJSONObject("end_location").getDouble("lat"));
 		arriveeGPS.setLng(info.getJSONObject("end_location").getDouble("lng"));
 		itineraire.setArrivalGPS(arriveeGPS);
-		
+				
 		// set Etapes
-		JSONArray list = info.getJSONArray("steps");
-		EtapeGoogle step = new EtapeGoogle();
+		JSONArray list = info.getJSONArray("steps");		
 		for (int i = 0; i < list.length(); ++i) {
+			EtapeGoogle step = new EtapeGoogle();
 			JSONObject item = list.getJSONObject(i);
 			step.setDistance(item.getJSONObject("distance").getDouble("value"));
 			step.setDuree(item.getJSONObject("duration").getDouble("value"));
@@ -215,6 +219,7 @@ public class ProjetServlet extends HttpServlet {
 			step.setDepart(depart);
 			step.setArrivee(arrive);
 			step.setConsigne(item.getString("html_instructions"));
+			step.setWay(decodePoly(item.getJSONObject("polyline").getString("points")));
 			itineraire.setSteps(step);
 		}
 		return itineraire;
@@ -268,30 +273,38 @@ public class ProjetServlet extends HttpServlet {
 			rd.close();
 			JSONObject adresse = new JSONObject(response.toString());
 			return adresse;
-
-		/*
-		 * try{ URL url = new
-		 * URL("https://www.tan.fr/ewp/mhv.php/itineraire/address.json?nom=nantes"
-		 * ); HttpURLConnection connection =
-		 * (HttpURLConnection)url.openConnection();
-		 * connection.setRequestMethod("POST"); String charset = "UTF-8"; String
-		 * qry = URLEncoder.encode("&nom=nantes",charset);
-		 * connection.setRequestProperty("Accept-Charset", charset);
-		 * connection.setRequestProperty("Content-Type",
-		 * "application/x-ww-form-urlencoded");
-		 * connection.setRequestProperty("Content-Length",
-		 * ""+Integer.toString(qry.getBytes().length));
-		 * connection.setDoInput(true); connection.setDoOutput(true);
-		 * 
-		 * InputStream _is; if (connection.getResponseCode() >= 400) { _is =
-		 * connection.getInputStream(); } else {
-		 * 
-		 * _is = connection.getErrorStream(); }
-		 * 
-		 * 
-		 * } catch (Exception e) { throw e; }
-		 */
 	}
+	
+	public static ArrayList<GPSCoordonate> decodePoly(String encoded) {
+		  ArrayList<GPSCoordonate> poly = new ArrayList<GPSCoordonate>();
+		  int index = 0, len = encoded.length();
+		  int lat = 0, lng = 0;
+		  while (index < len) {
+		   int b, shift = 0, result = 0;
+		   do {
+		    b = encoded.charAt(index++) - 63;
+		    result |= (b & 0x1f) << shift;
+		    shift += 5;
+		   } while (b >= 0x20);
+		   int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+		   lat += dlat;
+		   shift = 0;
+		   result = 0;
+		   do {
+		    b = encoded.charAt(index++) - 63;
+		    result |= (b & 0x1f) << shift;
+		    shift += 5;
+		   } while (b >= 0x20);
+		   int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+		   lng += dlng;
+		   GPSCoordonate p = new GPSCoordonate();
+		   p.setLat(((double) lat / 1E5));
+		   p.setLng(((double) lng / 1E5));
+		   poly.add(p);
+		  }
+		  return poly;
+		 }
+	
 	
 	
 	public TrajetTAN setAdresseTAN(JSONObject obj){
