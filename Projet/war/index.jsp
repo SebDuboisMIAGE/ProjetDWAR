@@ -117,7 +117,7 @@ body {
 					value="<c:out value="${donnees.arrival}"/>" tabindex="1"
 					class="valid"></label>
 			</div>
-			<input type="submit" class="submitItinerary" value="Go !">
+			<input type="submit" class="submitItinerary" value="Go !"/>
 		</form>
 	</div>
 	<div id="Resultats_Google">
@@ -147,7 +147,31 @@ body {
 			-->
 
 		</div>
-
+		<br/>
+		<div id="pond_cost">
+			Coût : 
+			<input type="text" name="cost" id="cost"
+					value="<c:out value="${donnees.cost}"/>" tabindex="1"
+					class="pond"/>
+		</div>
+		<div id="pond_time">
+			Temps : 
+			<input type="text" name="time" id="time"
+					value="<c:out value="${donnees.time}"/>" tabindex="1"
+					class="pond"/>
+		</div>
+		<div id="pond_ecological">
+			Ecologique : 
+			<input type="text" name="ecolo" id="ecolo"
+					value="<c:out value="${donnees.ecological}"/>" tabindex="1"
+					class="pond"/>
+		</div>
+		<div id="pond_calorie">
+			Calorie : 
+			<input type="text" name="calorie" id="calorie"
+					value="<c:out value="${donnees.calorie}"/>" tabindex="1"
+					class="pond"/>
+		</div>
 	</div>
 
 	<div id='<c:out value="${carte}"/>' style="width: 100%; height: 100%"></div>

@@ -71,10 +71,22 @@ public class ProjetServlet extends HttpServlet {
 		// Récupération des informations saisies par l'utilisateur
 		String departure = req.getParameter("from");
 		String arrivee = req.getParameter("to");
+		String cost = req.getParameter("cost");
+		if(cost == null){cost = "";}
+		String time = req.getParameter("time");
+		if(time == null){time = "";}
+		String ecolo = req.getParameter("ecolo");
+		if(ecolo == null){ecolo = "";}
+		String calorie = req.getParameter("calorie");
+		if(calorie == null){calorie = "";}
 		
 		Donnees data = new Donnees();
-		data.setArrival(arrivee);
+		data.setArrival(arrivee); 
 		data.setDeparture(departure);
+		data.setCost(cost.equals("") ? -1 : Integer.parseInt(cost));
+		data.setTime(time.equals("") ? -1 : Integer.parseInt(time));
+		data.setEcological(ecolo.equals("") ? -1 : Integer.parseInt(ecolo));
+		data.setCalorie(calorie.equals("") ? -1 : Integer.parseInt(calorie));
 		
 		System.out.println(data.getArrival());
 		System.out.println(data.getDeparture());
