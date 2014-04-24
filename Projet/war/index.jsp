@@ -147,6 +147,28 @@ body {
 			-->
 
 		</div>
+		<div id="liste_depart">
+			<FORM>
+				<SELECT name="listedepart" size="1">
+				<c:forEach items="${ListeDepart}" var="adresse">
+					<OPTION>
+						<c:out value="${adresse.adresse}"></c:out>
+					</OPTION>
+				</c:forEach>
+				</SELECT>
+			</FORM>
+		</div>
+		<div id="liste_arrivee">
+			<FORM>
+				<SELECT name="listearrivee" size="1">
+				<c:forEach items="${ListeArrivee}" var="adresse">
+					<OPTION>
+						<c:out value="${adresse.adresse}"></c:out>
+					</OPTION>
+				</c:forEach>
+				</SELECT>
+			</FORM>
+		</div>
 
 	</div>
 

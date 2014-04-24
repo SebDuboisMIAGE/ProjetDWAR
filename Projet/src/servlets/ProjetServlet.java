@@ -36,6 +36,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import beans.AdresseTAN;
 import beans.Donnees;
 import beans.GPSCoordonate;
 import beans.TrajetGoogle;
@@ -54,15 +55,6 @@ public class ProjetServlet extends HttpServlet {
 	public static String prefix_url_direction = "https://maps.googleapis.com/maps/api/directions/json";
 	public static String key ="AIzaSyA3ol1gtWbndHLBeXy0AWIDFDBx6JnLMZA";
 
-	/*
-	 * public void doGet(HttpServletRequest req, HttpServletResponse resp)
-	 * throws ServletException, IOException {
-	 * this.getServletContext().getRequestDispatcher("/projet").forward(req,
-	 * resp);
-	 * 
-	 * }
-	 */
-
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException, ServletException {
 		resp.setContentType("text/html");
@@ -76,12 +68,9 @@ public class ProjetServlet extends HttpServlet {
 		data.setArrival(arrivee);
 		data.setDeparture(departure);
 		
-		System.out.println(data.getArrival());
-		System.out.println(data.getDeparture());
-		
 		req.setAttribute("donnees", data);
 		req.setAttribute("carte", "carte");
-
+		
 		// Récupération du trajet Google
 		try {
 			TrajetGoogle trajetGoogleDriving = setTrajetGoogle(getTrajetGoogle(departure, arrivee, "driving"));
@@ -95,22 +84,21 @@ public class ProjetServlet extends HttpServlet {
 			e1.printStackTrace();
 		}
 
-		// Vérification de la disponibilité des adresses de la TAN
-		// System.out.println(itineraire.getArrivee());
-
-		
-
-		this.getServletContext().getRequestDispatcher("/index.jsp").forward(req,resp);
-
 		// Requete TAN
-
 		System.out.println("TAN : ");
 		try {
-//			getTaN(departure);
+			//Récupération des listes d'adresses de départ et d'arrivee
+			List<AdresseTAN> listeChoixDepart = getChoixAdresseTAN(getAdresseTaN(departure));
+			req.setAttribute("ListeDepart", listeChoixDepart);
+			List<AdresseTAN> listeChoixArrivee = getChoixAdresseTAN(getAdresseTaN(arrivee));
+			req.setAttribute("ListeArrivee", listeChoixArrivee);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		// Renvoit des données dans la page JSP
+		this.getServletContext().getRequestDispatcher("/index.jsp").forward(req,resp);
 
 	};
 
@@ -168,7 +156,6 @@ public class ProjetServlet extends HttpServlet {
 				+ key;
 		URL url = new URL(url_build);
 		// read from the URL
-		System.out.println(url_build);
 		Scanner scan = new Scanner(url.openStream());
 		String str = new String();
 		while (scan.hasNext())
@@ -228,9 +215,9 @@ public class ProjetServlet extends HttpServlet {
 /*
 * 		--  TAN  --
 */
-	public JSONObject getAdresseTaN(String departure) throws Exception {
+	public JSONObject getAdresseTaN(String addresse) throws Exception {
 		
-		String urlParameters = "nom=" + URLEncoder.encode(departure, "UTF-8")
+		String urlParameters = "nom=" + URLEncoder.encode(addresse, "UTF-8")
 				+ "\"";
 		URL url;
 		HttpURLConnection connection = null;
@@ -271,8 +258,30 @@ public class ProjetServlet extends HttpServlet {
 				response.append('\r');
 			}
 			rd.close();
-			JSONObject adresse = new JSONObject(response.toString());
+			JSONObject adresse = new JSONArray(response.toString()).getJSONObject(0);
 			return adresse;
+	}	
+	
+	public List<AdresseTAN> getChoixAdresseTAN(JSONObject obj){
+		List<AdresseTAN> liste = new ArrayList<AdresseTAN>();
+		// get the first result
+		JSONArray list;
+		try {
+			list = obj.getJSONArray("lieux");
+			// Lecture de toutes les adresses trouvees
+			for (int i = 0; i < list.length(); ++i) {
+				AdresseTAN adresse = new AdresseTAN();
+				JSONObject item = list.getJSONObject(i);
+				adresse.setAdresse(item.getString("nom")+' '+item.getString("cp")+' '+item.getString("ville"));
+				adresse.setIdTAN(item.getString("id"));
+				liste.add(adresse);
+			}
+		} catch (JSONException e) {
+			// TODO Bloc catch généré automatiquement
+			e.printStackTrace();
+		}
+		
+		return liste;
 	}
 	
 	public static ArrayList<GPSCoordonate> decodePoly(String encoded) {
@@ -304,13 +313,5 @@ public class ProjetServlet extends HttpServlet {
 		  }
 		  return poly;
 		 }
-	
-	
-	
-	public TrajetTAN setAdresseTAN(JSONObject obj){
-	//TODO	
-		return null;
-	}
-
 	
 }
