@@ -117,7 +117,7 @@ body {
 					value="<c:out value="${donnees.arrival}"/>" tabindex="1"
 					class="valid"></label>
 			</div>
-			<input type="submit" class="submitItinerary" value="Go !"/>
+			<input type="submit" class="submitItinerary" value="Go !">
 		</form>
 	</div>
 	<div id="Resultats_Google">
@@ -146,6 +146,28 @@ body {
 			</c:forEach>
 			-->
 
+		</div>
+		<div id="liste_depart">
+			<FORM>
+				<SELECT name="listedepart" size="1">
+				<c:forEach items="${ListeDepart}" var="adresse">
+					<OPTION>
+						<c:out value="${adresse.adresse}"></c:out>
+					</OPTION>
+				</c:forEach>
+				</SELECT>
+			</FORM>
+		</div>
+		<div id="liste_arrivee">
+			<FORM>
+				<SELECT name="listearrivee" size="1">
+				<c:forEach items="${ListeArrivee}" var="adresse">
+					<OPTION>
+						<c:out value="${adresse.adresse}"></c:out>
+					</OPTION>
+				</c:forEach>
+				</SELECT>
+			</FORM>
 		</div>
 		<br/>
 		<div id="pond_cost">
