@@ -31,12 +31,6 @@ body {
 }
 </style>
 
-
-
-
-
-
-
 <script type="text/javascript"
 	src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA3ol1gtWbndHLBeXy0AWIDFDBx6JnLMZA&sensor=true">
 	
@@ -106,7 +100,7 @@ body {
 	<div id="Recherche">
 		<c:out value="Itinéraire" />
 		<form name="input"
-			action=<c:url value="http://localhost:8888/projet"/> method="post">
+			action=<c:url value="/projet"/> method="post">
 			<div id="departure">
 				<label>Départ : <input type="text" name="from" id="from"
 					value="<c:out value="${donnees.departure}"/>" tabindex="1"
