@@ -100,7 +100,7 @@ body {
 	<div id="Recherche">
 		<c:out value="Itinéraire" />
 		<form name="input"
-			action=<c:url value="/projet"/> method="post">
+			action=<c:url value="http://localhost:8888/projet"/> method="post">
 			<div id="departure">
 				<label>Départ : <input type="text" name="from" id="from"
 					value="<c:out value="${donnees.departure}"/>" tabindex="1"
@@ -111,10 +111,27 @@ body {
 					value="<c:out value="${donnees.arrival}"/>" tabindex="1"
 					class="valid"></label>
 			</div>
+			<SELECT name="listedepart" id="listedepart" size="1">
+			<c:forEach items="${ListeDepart}" var="adresse">
+				<OPTION>
+					<c:out value="${adresse.adresse}"></c:out>
+				</OPTION>
+			</c:forEach>
+			</SELECT>
+
+			<SELECT name="listearrivee" size="1">
+			<c:forEach items="${ListeArrivee}" var="adresse">
+				<OPTION>
+					<c:out value="${adresse.adresse}"></c:out>
+				</OPTION>
+			</c:forEach>
+			</SELECT>
 			<input type="submit" class="submitItinerary" value="Go !">
 		</form>
 	</div>
+	
 	<div id="Resultats_Google">
+	<!--
 		<div id="res_depart">
 			Adresse de départ :
 			<c:out value="${TrajetGoogleDriving.departure}"></c:out>
@@ -134,36 +151,16 @@ body {
 
 		<div id="res_consigne">
 			Trajet :
-			<!-- 
 			<c:forEach items="${TrajetGoogleDriving.steps}" var="step">
 				<c:out value="${step.depart.lat}"></c:out>
 			</c:forEach>
-			-->
 
 		</div>
-		<div id="liste_depart">
-			<FORM>
-				<SELECT name="listedepart" size="1">
-				<c:forEach items="${ListeDepart}" var="adresse">
-					<OPTION>
-						<c:out value="${adresse.adresse}"></c:out>
-					</OPTION>
-				</c:forEach>
-				</SELECT>
-			</FORM>
-		</div>
-		<div id="liste_arrivee">
-			<FORM>
-				<SELECT name="listearrivee" size="1">
-				<c:forEach items="${ListeArrivee}" var="adresse">
-					<OPTION>
-						<c:out value="${adresse.adresse}"></c:out>
-					</OPTION>
-				</c:forEach>
-				</SELECT>
-			</FORM>
+		-->
+
 		</div>
 		<br/>
+		<!-- 
 		<div id="pond_cost">
 			Coût : 
 			<input type="text" name="cost" id="cost"
@@ -188,8 +185,9 @@ body {
 					value="<c:out value="${donnees.calorie}"/>" tabindex="1"
 					class="pond"/>
 		</div>
+		-->
 	</div>
 
-	<div id='<c:out value="${carte}"/>' style="width: 100%; height: 100%"></div>
+	<!-- <div id='<c:out value="${carte}"/>' style="width: 100%; height: 100%"></div> -->
 </body>
 </html>

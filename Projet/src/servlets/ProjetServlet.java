@@ -37,12 +37,19 @@ public class ProjetServlet extends HttpServlet {
 	public static String prefix_url_direction = "https://maps.googleapis.com/maps/api/directions/json";
 	public static String key ="AIzaSyA3ol1gtWbndHLBeXy0AWIDFDBx6JnLMZA";
 
+	
+
+	public void doGet(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		this.getServletContext().getRequestDispatcher("/index.jsp").forward(req,resp);	 
+	}
+		
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException, ServletException {
 		resp.setContentType("text/html");
 		@SuppressWarnings("unused")
 		PrintWriter out = resp.getWriter();
-
+		
 		// Récupération des informations saisies par l'utilisateur
 		String departure = req.getParameter("from");
 		String arrivee = req.getParameter("to");
@@ -65,8 +72,24 @@ public class ProjetServlet extends HttpServlet {
 		
 		req.setAttribute("donnees", data);
 		req.setAttribute("carte", "carte");
+				
+		// Requete TAN
+		try {
+			//Récupération des listes d'adresses de départ et d'arrivee via la TAN
+			List<AdresseTAN> listeChoixDepart = getChoixAdresseTAN(getAdresseTaN(departure));
+			req.setAttribute("ListeDepart", listeChoixDepart);
+			List<AdresseTAN> listeChoixArrivee = getChoixAdresseTAN(getAdresseTaN(arrivee));
+			req.setAttribute("ListeArrivee", listeChoixArrivee);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
 		
-		// Récupération du trajet Google
+		//Lecture des choix d'adresse
+		System.out.println(req.getParameter("listedepart"));
+		
+		/*
+		// Récupération des trajets (Google et Tan)
 		try {
 			TrajetGoogle trajetGoogleDriving = setTrajetGoogle(getTrajetGoogle(departure, arrivee, "driving"));
 			req.setAttribute("TrajetGoogleDriving", trajetGoogleDriving);
@@ -77,21 +100,8 @@ public class ProjetServlet extends HttpServlet {
 		} catch (JSONException e1) {
 			// TODO
 			e1.printStackTrace();
-		}
-
-		// Requete TAN
-		System.out.println("TAN : ");
-		try {
-			//Récupération des listes d'adresses de départ et d'arrivee
-			List<AdresseTAN> listeChoixDepart = getChoixAdresseTAN(getAdresseTaN(departure));
-			req.setAttribute("ListeDepart", listeChoixDepart);
-			List<AdresseTAN> listeChoixArrivee = getChoixAdresseTAN(getAdresseTaN(arrivee));
-			req.setAttribute("ListeArrivee", listeChoixArrivee);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
+		}		
+		*/
 		// Renvoit des données dans la page JSP
 		this.getServletContext().getRequestDispatcher("/index.jsp").forward(req,resp);
 
@@ -288,7 +298,6 @@ public class ProjetServlet extends HttpServlet {
 		}
 		
 		return liste;
-<<<<<<< HEAD
 	}
 	
 	/*
@@ -344,63 +353,6 @@ public class ProjetServlet extends HttpServlet {
 	}
 	
 	/*
-=======
-	}
-	
-	/*
-	 * Fonction permettant de récupérer un fichier JSON représentant le trajet TAN 
-	 * d'une adresse à une autre
-	 * Renvoit un JSON
-	 */
-	public JSONObject getTrajetTAN(AdresseTAN origine, AdresseTAN destination) throws Exception
-	{
-		String urlParameters = "depart=" + URLEncoder.encode(origine.getIdTAN(), "UTF-8") + "&arrive=" + URLEncoder.encode(destination.getIdTAN(), "UTF-8") + "&type=0&accessible=0&temps=" + URLEncoder.encode("2014-05-13 17:00","UTF-8") + "&retour=0"
-				+ "\"";
-		URL url;
-		HttpURLConnection connection = null;
-		
-			// Create connection
-			url = new URL(
-					"https://www.tan.fr/ewp/mhv.php/itineraire/resultat.json");
-
-			// set connection properties
-			connection = (HttpURLConnection) url.openConnection();
-			connection.setRequestMethod("POST");
-			connection.setRequestProperty("Content-Type",
-					"application/x-www-form-urlencoded");
-
-			connection.setRequestProperty("Content-Length",
-					"" + Integer.toString(urlParameters.getBytes().length));
-			connection.setRequestProperty("Content-Language", "en-US");
-			connection.setConnectTimeout(60000);// 60 s
-			connection.setReadTimeout(60000);// 60s
-			connection.setUseCaches(false);
-			connection.setDoInput(true);
-			connection.setDoOutput(true);
-
-			// Send request
-			DataOutputStream wr = new DataOutputStream(
-					connection.getOutputStream());
-			wr.writeBytes(urlParameters);
-			wr.flush();
-			wr.close();
-
-			// Get Response
-			InputStream is = connection.getInputStream();
-			BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-			String line;
-			StringBuffer response = new StringBuffer();
-			while ((line = rd.readLine()) != null) {
-				response.append(line);
-				response.append('\r');
-			}
-			rd.close();
-			JSONObject itineraire = new JSONArray(response.toString()).getJSONObject(0);
-			return itineraire;
-	}
-	
-	/*
->>>>>>> eea88d9f537b459a75e315508cebdc7e4676617f
 	 * Fonction permettant de créer un objet itinéraire TAN en fonction du Fichier JSON
 	 * passé en paramètre
 	 */
