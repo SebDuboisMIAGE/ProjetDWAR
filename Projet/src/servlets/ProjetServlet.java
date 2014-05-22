@@ -288,6 +288,7 @@ public class ProjetServlet extends HttpServlet {
 		}
 		
 		return liste;
+<<<<<<< HEAD
 	}
 	
 	/*
@@ -343,6 +344,63 @@ public class ProjetServlet extends HttpServlet {
 	}
 	
 	/*
+=======
+	}
+	
+	/*
+	 * Fonction permettant de récupérer un fichier JSON représentant le trajet TAN 
+	 * d'une adresse à une autre
+	 * Renvoit un JSON
+	 */
+	public JSONObject getTrajetTAN(AdresseTAN origine, AdresseTAN destination) throws Exception
+	{
+		String urlParameters = "depart=" + URLEncoder.encode(origine.getIdTAN(), "UTF-8") + "&arrive=" + URLEncoder.encode(destination.getIdTAN(), "UTF-8") + "&type=0&accessible=0&temps=" + URLEncoder.encode("2014-05-13 17:00","UTF-8") + "&retour=0"
+				+ "\"";
+		URL url;
+		HttpURLConnection connection = null;
+		
+			// Create connection
+			url = new URL(
+					"https://www.tan.fr/ewp/mhv.php/itineraire/resultat.json");
+
+			// set connection properties
+			connection = (HttpURLConnection) url.openConnection();
+			connection.setRequestMethod("POST");
+			connection.setRequestProperty("Content-Type",
+					"application/x-www-form-urlencoded");
+
+			connection.setRequestProperty("Content-Length",
+					"" + Integer.toString(urlParameters.getBytes().length));
+			connection.setRequestProperty("Content-Language", "en-US");
+			connection.setConnectTimeout(60000);// 60 s
+			connection.setReadTimeout(60000);// 60s
+			connection.setUseCaches(false);
+			connection.setDoInput(true);
+			connection.setDoOutput(true);
+
+			// Send request
+			DataOutputStream wr = new DataOutputStream(
+					connection.getOutputStream());
+			wr.writeBytes(urlParameters);
+			wr.flush();
+			wr.close();
+
+			// Get Response
+			InputStream is = connection.getInputStream();
+			BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+			String line;
+			StringBuffer response = new StringBuffer();
+			while ((line = rd.readLine()) != null) {
+				response.append(line);
+				response.append('\r');
+			}
+			rd.close();
+			JSONObject itineraire = new JSONArray(response.toString()).getJSONObject(0);
+			return itineraire;
+	}
+	
+	/*
+>>>>>>> eea88d9f537b459a75e315508cebdc7e4676617f
 	 * Fonction permettant de créer un objet itinéraire TAN en fonction du Fichier JSON
 	 * passé en paramètre
 	 */
