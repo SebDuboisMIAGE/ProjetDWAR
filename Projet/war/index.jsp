@@ -31,12 +31,6 @@ body {
 }
 </style>
 
-
-
-
-
-
-
 <script type="text/javascript"
 	src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA3ol1gtWbndHLBeXy0AWIDFDBx6JnLMZA&sensor=true">
 	
@@ -106,7 +100,7 @@ body {
 	<div id="Recherche">
 		<c:out value="Itinéraire" />
 		<form name="input"
-			action=<c:url value="http://localhost:8888/projet"/> method="post">
+			action=<c:url value="/projet"/> method="post">
 			<div id="departure">
 				<label>Départ : <input type="text" name="from" id="from"
 					value="<c:out value="${donnees.departure}"/>" tabindex="1"
@@ -147,7 +141,53 @@ body {
 			-->
 
 		</div>
-
+		<div id="liste_depart">
+			<FORM>
+				<SELECT name="listedepart" size="1">
+				<c:forEach items="${ListeDepart}" var="adresse">
+					<OPTION>
+						<c:out value="${adresse.adresse}"></c:out>
+					</OPTION>
+				</c:forEach>
+				</SELECT>
+			</FORM>
+		</div>
+		<div id="liste_arrivee">
+			<FORM>
+				<SELECT name="listearrivee" size="1">
+				<c:forEach items="${ListeArrivee}" var="adresse">
+					<OPTION>
+						<c:out value="${adresse.adresse}"></c:out>
+					</OPTION>
+				</c:forEach>
+				</SELECT>
+			</FORM>
+		</div>
+		<br/>
+		<div id="pond_cost">
+			Coût : 
+			<input type="text" name="cost" id="cost"
+					value="<c:out value="${donnees.cost}"/>" tabindex="1"
+					class="pond"/>
+		</div>
+		<div id="pond_time">
+			Temps : 
+			<input type="text" name="time" id="time"
+					value="<c:out value="${donnees.time}"/>" tabindex="1"
+					class="pond"/>
+		</div>
+		<div id="pond_ecological">
+			Ecologique : 
+			<input type="text" name="ecolo" id="ecolo"
+					value="<c:out value="${donnees.ecological}"/>" tabindex="1"
+					class="pond"/>
+		</div>
+		<div id="pond_calorie">
+			Calorie : 
+			<input type="text" name="calorie" id="calorie"
+					value="<c:out value="${donnees.calorie}"/>" tabindex="1"
+					class="pond"/>
+		</div>
 	</div>
 
 	<div id='<c:out value="${carte}"/>' style="width: 100%; height: 100%"></div>
