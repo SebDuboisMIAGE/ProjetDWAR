@@ -5,12 +5,20 @@ xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
 http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 	<servlet>
-		<servlet-name>Projet</servlet-name>
-		<servlet-class>servlets.ProjetServlet</servlet-class>
+		<servlet-name>Recherche</servlet-name>
+		<servlet-class>servlets.RechercheServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>Itineraire</servlet-name>
+		<servlet-class>servlets.ItineraireServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>Projet</servlet-name>
-		<url-pattern>/projet</url-pattern>
+		<servlet-name>Recherche</servlet-name>
+		<url-pattern>/recherche</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Itineraire</servlet-name>
+		<url-pattern>/itineraire</url-pattern>
 	</servlet-mapping>
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>

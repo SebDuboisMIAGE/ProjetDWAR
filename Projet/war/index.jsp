@@ -100,7 +100,7 @@ body {
 	<div id="Recherche">
 		<c:out value="Itinéraire" />
 		<form name="input"
-			action=<c:url value="http://localhost:8888/projet"/> method="post">
+			action=<c:url value="http://localhost:8888/recherche"/> method="post">
 			<div id="departure">
 				<label>Départ : <input type="text" name="from" id="from"
 					value="<c:out value="${donnees.departure}"/>" tabindex="1"
@@ -110,25 +110,30 @@ body {
 				<label>Arrivée : <input type="text" name="to" id="to"
 					value="<c:out value="${donnees.arrival}"/>" tabindex="1"
 					class="valid"></label>
-			</div>
-			<SELECT name="listedepart" id="listedepart" size="1">
-			<c:forEach items="${ListeDepart}" var="adresse">
-				<OPTION>
-					<c:out value="${adresse.adresse}"></c:out>
-				</OPTION>
-			</c:forEach>
-			</SELECT>
-
-			<SELECT name="listearrivee" size="1">
-			<c:forEach items="${ListeArrivee}" var="adresse">
-				<OPTION>
-					<c:out value="${adresse.adresse}"></c:out>
-				</OPTION>
-			</c:forEach>
-			</SELECT>
-			<input type="submit" class="submitItinerary" value="Go !">
+			</div>			
+			<input type="submit" class="submitItinerary" value="Rechercher !">
 		</form>
 	</div>
+	
+	<form name="input"
+			action=<c:url value="http://localhost:8888/itineraire"/> method="post">
+		<SELECT name="listedepart" id="listedepart" size="1">
+		<c:forEach items="${ListeDepart}" var="adresse">
+			<OPTION>
+				<c:out value="${adresse.adresse}"></c:out>
+			</OPTION>
+		</c:forEach>
+		</SELECT>
+	
+		<SELECT name="listearrivee" size="1">
+		<c:forEach items="${ListeArrivee}" var="adresse">
+			<OPTION>
+				<c:out value="${adresse.adresse}"></c:out>
+			</OPTION>
+		</c:forEach>
+		</SELECT>
+		<input type="submit" class="submitItinerary" value="Calculer l'itinéraire !">
+	</form>
 	
 	<div id="Resultats_Google">
 	<!--
