@@ -38,11 +38,11 @@ body {
 
 <script type="text/javascript">
 	function initialize() {
-		var latlng = new google.maps.LatLng(47.15, -1, 6079);//nantes
+		var latlng = new google.maps.LatLng('<c:out value="${TrajetGoogleDriving.departureGPS.lat}"/>', '<c:out value="${TrajetGoogleDriving.departureGPS.lng}"/>');//nantes
 
 		var mapOptions = {
 			center : latlng,
-			zoom : 8,
+			zoom : 12,
 			mapTypeId : google.maps.MapTypeId.ROADMAP};
 
 		var carte = new google.maps.Map(document.getElementById("carte"),
@@ -66,17 +66,6 @@ body {
 				parcoursCar.push(new google.maps.LatLng('<c:out value="${w.lat}"/>', '<c:out value="${w.lng}"/>'));
 			</c:forEach>
 		</c:forEach>
-		
-		var parcoursBus = [
-				new google.maps.LatLng(46.781367900048, 6.6401992834884),
-				new google.maps.LatLng(46.780821285011, 6.6416348016222),
-				new google.maps.LatLng(46.780496546047, 6.6421830461926),
-				new google.maps.LatLng(46.779835306991, 6.6426765713417),
-				new google.maps.LatLng(46.777748677169, 6.6518819126808),
-				new google.maps.LatLng(46.778027878803, 6.6541349682533),
-				new google.maps.LatLng(46.778484884759, 6.6557324922045),
-				new google.maps.LatLng(46.778752327087, 6.6573654211838),
-				new google.maps.LatLng(46.778605381016, 6.6588674582321) ];
 
 		var traceParcoursCar = new google.maps.Polyline({
 			path : parcoursCar,//chemin du tracé
@@ -91,11 +80,6 @@ body {
 		traceParcoursCar.setMap(carte);
 
 	}
-	//google.maps.event.addDomListener(window, 'load', initialize);
-
-</script>
-
-<script language="JavaScript"> 
 
 function trajetVoiture() 
 { 
@@ -104,6 +88,47 @@ function trajetVoiture()
 	document.getElementById('res_duree').innerHTML = "Durée :<c:out value="${TrajetGoogleDriving.duration}"></c:out>";
 	document.getElementById('res_distance').innerHTML = "Distance :<c:out value="${TrajetGoogleDriving.distance}"></c:out>";
 	document.getElementById('res_consigne').innerHTML = "Trajet :<c:forEach items="${TrajetGoogleDriving.steps}" var="step"><c:out value="${step.consigne}"></c:out></c:forEach>";
+
+	//Raffraichissement de la map
+	var latlng = new google.maps.LatLng('<c:out value="${TrajetGoogleDriving.departureGPS.lat}"/>', '<c:out value="${TrajetGoogleDriving.departureGPS.lng}"/>');//nantes
+
+	var mapOptions = {
+		center : latlng,
+		zoom : 12,
+		mapTypeId : google.maps.MapTypeId.ROADMAP};
+
+	var carte = new google.maps.Map(document.getElementById("carte"),mapOptions);
+	//création des marqueurs de départ et d'arrivée
+	var depart = new google.maps.Marker({
+		position : new google.maps.LatLng('<c:out value="${TrajetGoogleDriving.departureGPS.lat}"/>', '<c:out value="${TrajetGoogleDriving.departureGPS.lng}"/>'),
+		map : carte
+		
+	});
+	var arrivee = new google.maps.Marker({
+		position : new google.maps.LatLng('<c:out value="${TrajetGoogleDriving.arrivalGPS.lat}"/>', '<c:out value="${TrajetGoogleDriving.arrivalGPS.lng}"/>'),
+		map : carte
+	});
+
+	//création de la polyline pour dessiner le trajet
+	var parcoursCar = new Array();
+	<c:forEach items="${TrajetGoogleDriving.steps}" var="step">
+		<c:forEach items="${step.way}" var="w">
+			parcoursCar.push(new google.maps.LatLng('<c:out value="${w.lat}"/>', '<c:out value="${w.lng}"/>'));
+			parcoursCar.push(new google.maps.LatLng('<c:out value="${w.lat}"/>', '<c:out value="${w.lng}"/>'));
+		</c:forEach>
+	</c:forEach>
+
+	var traceParcoursCar = new google.maps.Polyline({
+		path : parcoursCar,//chemin du tracé
+		strokeColor : "#FF0000",//couleur du tracé
+		strokeOpacity : 1.0,//opacité du tracé
+		strokeWeight : 2
+	//grosseur du tracé
+	});
+
+	//lier le tracé à la carte
+	//ceci permet au tracé d'être affiché sur la carte
+	traceParcoursCar.setMap(carte);
 } 
 
 function trajetPieton() 
@@ -113,6 +138,47 @@ function trajetPieton()
 	document.getElementById('res_duree').innerHTML = "Durée :<c:out value="${TrajetGoogleWalking.duration}"></c:out>";
 	document.getElementById('res_distance').innerHTML = "Distance :<c:out value="${TrajetGoogleWalking.distance}"></c:out>";
 	document.getElementById('res_consigne').innerHTML = "Trajet :<c:forEach items="${TrajetGoogleWalking.steps}" var="step"><c:out value="${step.consigne}"></c:out></c:forEach>";
+
+	//Raffraichissement de la map
+	var latlng = new google.maps.LatLng('<c:out value="${TrajetGoogleWalking.departureGPS.lat}"/>', '<c:out value="${TrajetGoogleWalking.departureGPS.lng}"/>');//nantes
+
+	var mapOptions = {
+		center : latlng,
+		zoom : 12,
+		mapTypeId : google.maps.MapTypeId.ROADMAP};
+
+	var carte = new google.maps.Map(document.getElementById("carte"),mapOptions);
+	//création des marqueurs de départ et d'arrivée
+	var depart = new google.maps.Marker({
+		position : new google.maps.LatLng('<c:out value="${TrajetGoogleWalking.departureGPS.lat}"/>', '<c:out value="${TrajetGoogleWalking.departureGPS.lng}"/>'),
+		map : carte
+		
+	});
+	var arrivee = new google.maps.Marker({
+		position : new google.maps.LatLng('<c:out value="${TrajetGoogleWalking.arrivalGPS.lat}"/>', '<c:out value="${TrajetGoogleWalking.arrivalGPS.lng}"/>'),
+		map : carte
+	});
+
+	//création de la polyline pour dessiner le trajet
+	var parcoursCar = new Array();
+	<c:forEach items="${TrajetGoogleWalking.steps}" var="step">
+		<c:forEach items="${step.way}" var="w">
+			parcoursCar.push(new google.maps.LatLng('<c:out value="${w.lat}"/>', '<c:out value="${w.lng}"/>'));
+			parcoursCar.push(new google.maps.LatLng('<c:out value="${w.lat}"/>', '<c:out value="${w.lng}"/>'));
+		</c:forEach>
+	</c:forEach>
+
+	var traceParcoursCar = new google.maps.Polyline({
+		path : parcoursCar,//chemin du tracé
+		strokeColor : "#0000FF",//couleur du tracé
+		strokeOpacity : 1.0,//opacité du tracé
+		strokeWeight : 2
+	//grosseur du tracé
+	});
+
+	//lier le tracé à la carte
+	//ceci permet au tracé d'être affiché sur la carte
+	traceParcoursCar.setMap(carte);
 } 
 
 function trajetVelo() 
@@ -122,6 +188,47 @@ function trajetVelo()
 	document.getElementById('res_duree').innerHTML = "Durée :<c:out value="${TrajetGoogleBicycling.duration}"></c:out>";
 	document.getElementById('res_distance').innerHTML = "Distance :<c:out value="${TrajetGoogleBicycling.distance}"></c:out>";
 	document.getElementById('res_consigne').innerHTML = "Trajet :<c:forEach items="${TrajetGoogleBicycling.steps}" var="step"><c:out value="${step.consigne}"></c:out></c:forEach>";
+
+	//Raffraichissement de la map
+	var latlng = new google.maps.LatLng('<c:out value="${TrajetGoogleBicycling.departureGPS.lat}"/>', '<c:out value="${TrajetGoogleBicycling.departureGPS.lng}"/>');//nantes
+
+	var mapOptions = {
+		center : latlng,
+		zoom : 12,
+		mapTypeId : google.maps.MapTypeId.ROADMAP};
+
+	var carte = new google.maps.Map(document.getElementById("carte"),mapOptions);
+	//création des marqueurs de départ et d'arrivée
+	var depart = new google.maps.Marker({
+		position : new google.maps.LatLng('<c:out value="${TrajetGoogleBicycling.departureGPS.lat}"/>', '<c:out value="${TrajetGoogleBicycling.departureGPS.lng}"/>'),
+		map : carte
+		
+	});
+	var arrivee = new google.maps.Marker({
+		position : new google.maps.LatLng('<c:out value="${TrajetGoogleBicycling.arrivalGPS.lat}"/>', '<c:out value="${TrajetGoogleBicycling.arrivalGPS.lng}"/>'),
+		map : carte
+	});
+
+	//création de la polyline pour dessiner le trajet
+	var parcoursCar = new Array();
+	<c:forEach items="${TrajetGoogleBicycling.steps}" var="step">
+		<c:forEach items="${step.way}" var="w">
+			parcoursCar.push(new google.maps.LatLng('<c:out value="${w.lat}"/>', '<c:out value="${w.lng}"/>'));
+			parcoursCar.push(new google.maps.LatLng('<c:out value="${w.lat}"/>', '<c:out value="${w.lng}"/>'));
+		</c:forEach>
+	</c:forEach>
+
+	var traceParcoursCar = new google.maps.Polyline({
+		path : parcoursCar,//chemin du tracé
+		strokeColor : "#00FF00",//couleur du tracé
+		strokeOpacity : 1.0,//opacité du tracé
+		strokeWeight : 2
+	//grosseur du tracé
+	});
+
+	//lier le tracé à la carte
+	//ceci permet au tracé d'être affiché sur la carte
+	traceParcoursCar.setMap(carte);
 }
 
 </script>
