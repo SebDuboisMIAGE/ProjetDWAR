@@ -92,6 +92,38 @@ body {
 
 	}
 	//google.maps.event.addDomListener(window, 'load', initialize);
+
+</script>
+
+<script language="JavaScript"> 
+
+function trajetVoiture() 
+{ 
+	document.getElementById('res_depart').innerHTML = "Adresse de départ :<c:out value="${TrajetGoogleDriving.departure}"></c:out>";
+	document.getElementById('res_arrivee').innerHTML = "Adresse de destination :<c:out value="${TrajetGoogleDriving.arrival}"></c:out>";
+	document.getElementById('res_duree').innerHTML = "Durée :<c:out value="${TrajetGoogleDriving.duration}"></c:out>";
+	document.getElementById('res_distance').innerHTML = "Distance :<c:out value="${TrajetGoogleDriving.distance}"></c:out>";
+	document.getElementById('res_consigne').innerHTML = "Trajet :<c:forEach items="${TrajetGoogleDriving.steps}" var="step"><c:out value="${step.consigne}"></c:out></c:forEach>";
+} 
+
+function trajetPieton() 
+{ 
+	document.getElementById('res_depart').innerHTML = "Adresse de départ :<c:out value="${TrajetGoogleWalking.departure}"></c:out>";
+	document.getElementById('res_arrivee').innerHTML = "Adresse de destination :<c:out value="${TrajetGoogleWalking.arrival}"></c:out>";
+	document.getElementById('res_duree').innerHTML = "Durée :<c:out value="${TrajetGoogleWalking.duration}"></c:out>";
+	document.getElementById('res_distance').innerHTML = "Distance :<c:out value="${TrajetGoogleWalking.distance}"></c:out>";
+	document.getElementById('res_consigne').innerHTML = "Trajet :<c:forEach items="${TrajetGoogleWalking.steps}" var="step"><c:out value="${step.consigne}"></c:out></c:forEach>";
+} 
+
+function trajetVelo() 
+{ 
+	document.getElementById('res_depart').innerHTML = "Adresse de départ :<c:out value="${TrajetGoogleBicycling.departure}"></c:out>";
+	document.getElementById('res_arrivee').innerHTML = "Adresse de destination :<c:out value="${TrajetGoogleBicycling.arrival}"></c:out>";
+	document.getElementById('res_duree').innerHTML = "Durée :<c:out value="${TrajetGoogleBicycling.duration}"></c:out>";
+	document.getElementById('res_distance').innerHTML = "Distance :<c:out value="${TrajetGoogleBicycling.distance}"></c:out>";
+	document.getElementById('res_consigne').innerHTML = "Trajet :<c:forEach items="${TrajetGoogleBicycling.steps}" var="step"><c:out value="${step.consigne}"></c:out></c:forEach>";
+}
+
 </script>
 
 </head>
@@ -134,9 +166,13 @@ body {
 		</SELECT>
 		<input type="submit" class="submitItinerary" value="Calculer l'itinéraire !">
 	</form>
+	<input type="button" onclick="trajetVoiture()" value="voiture"/>
+	<input type="button" onclick="trajetPieton()" value="pieton"/>
+	<input type="button" onclick="trajetVelo()" value="velo"/>
+	<input type="button" onclick="trajetTAN()" value="tramway/Bus"/>
 	
 	<div id="Resultats_Google">
-	<!--
+	
 		<div id="res_depart">
 			Adresse de départ :
 			<c:out value="${TrajetGoogleDriving.departure}"></c:out>
@@ -157,11 +193,10 @@ body {
 		<div id="res_consigne">
 			Trajet :
 			<c:forEach items="${TrajetGoogleDriving.steps}" var="step">
-				<c:out value="${step.depart.lat}"></c:out>
+				<c:out value="${step.consigne}"></c:out>
 			</c:forEach>
 
 		</div>
-		-->
 
 		</div>
 		<br/>
@@ -193,6 +228,6 @@ body {
 		-->
 	</div>
 
-	<!-- <div id='<c:out value="${carte}"/>' style="width: 100%; height: 100%"></div> -->
+	<div id='<c:out value="${carte}"/>' style="width: 100%; height: 100%"></div>
 </body>
 </html>
