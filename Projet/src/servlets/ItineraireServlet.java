@@ -46,7 +46,9 @@ public class ItineraireServlet extends HttpServlet{
 		String departure = req.getParameter("listedepart");
 		String arrivee = req.getParameter("listearrivee");
 		
-		req.setAttribute("carte", "carte");
+		req.setAttribute("visibility_carte", "visible_carte");
+		req.setAttribute("visibility_calculer", "visible_calculer");
+		req.setAttribute("visibility_resultat", "visible_resultat");
 		
 		// Récupération des trajets (Google et Tan)
 		try {

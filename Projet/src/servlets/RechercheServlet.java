@@ -51,6 +51,7 @@ public class RechercheServlet extends HttpServlet {
 		// Récupération des informations saisies par l'utilisateur
 		String departure = req.getParameter("from");
 		String arrivee = req.getParameter("to");
+		req.setAttribute("visibility_calculer", "visible_calculer");
 		
 		/* 
 		String cost = req.getParameter("cost");

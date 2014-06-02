@@ -10,26 +10,7 @@
 <head>
 <title>SmartTraveler</title>
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-<style type="text/css">
-html {
-	height: 100%
-}
-
-body {
-	height: 100%;
-	margin: 0;
-	padding: 0
-}
-
-#map-canvas {
-	height: 75%
-}
-
-#Recherche {
-	height: 25%;
-	position: relative
-}
-</style>
+<link href="<c:url value="/stylesheets/main.css" />" rel="stylesheet">
 
 <script type="text/javascript"
 	src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA3ol1gtWbndHLBeXy0AWIDFDBx6JnLMZA&sensor=true">
@@ -45,7 +26,7 @@ body {
 			zoom : 8,
 			mapTypeId : google.maps.MapTypeId.ROADMAP};
 
-		var carte = new google.maps.Map(document.getElementById("carte"),
+		var carte = new google.maps.Map(document.getElementById("<c:out value="${visibility_carte}"/>"),
 				mapOptions);
 		//création des marqueurs de départ et d'arrivée
 		var depart = new google.maps.Marker({
@@ -128,51 +109,85 @@ function trajetVelo()
 
 </head>
 <body onload="initialize()">
+
 	<h1>SmartTraveler</h1>
-	<div id="Recherche">
-		<c:out value="Itinéraire" />
+	<IMG class="displayed" src="bannieretest.jpg" alt="banniere">
+	<div class=transition></div>
+	<div id='<c:out value="${visibility_rechercher}"/>' class="Recherche">
+
 		<form name="input"
 			action=<c:url value="http://localhost:8888/recherche"/> method="post">
 			<div id="departure">
-				<label>Départ : <input type="text" name="from" id="from"
-					value="<c:out value="${donnees.departure}"/>" tabindex="1"
-					class="valid"></label>
+				<h2>
+					Départ : <input type="text" name="from" id="from"
+						value="<c:out value="${donnees.departure}"/>" tabindex="1"
+						class="valid">
+				</h2>
 			</div>
 			<div id="arrival">
-				<label>Arrivée : <input type="text" name="to" id="to"
-					value="<c:out value="${donnees.arrival}"/>" tabindex="1"
-					class="valid"></label>
-			</div>			
+				<h2>
+					Arrivée : <input type="text" name="to" id="to"
+						value="<c:out value="${donnees.arrival}"/>" tabindex="1"
+						class="valid">
+				</h2>
+			</div>
 			<input type="submit" class="submitItinerary" value="Rechercher !">
 		</form>
 	</div>
-	
-	<form name="input"
-			action=<c:url value="http://localhost:8888/itineraire"/> method="post">
-		<SELECT name="listedepart" id="listedepart" size="1">
-		<c:forEach items="${ListeDepart}" var="adresse">
-			<OPTION>
-				<c:out value="${adresse.adresse}"></c:out>
-			</OPTION>
-		</c:forEach>
-		</SELECT>
-	
-		<SELECT name="listearrivee" size="1">
-		<c:forEach items="${ListeArrivee}" var="adresse">
-			<OPTION>
-				<c:out value="${adresse.adresse}"></c:out>
-			</OPTION>
-		</c:forEach>
-		</SELECT>
-		<input type="submit" class="submitItinerary" value="Calculer l'itinéraire !">
-	</form>
-	<input type="button" onclick="trajetVoiture()" value="voiture"/>
-	<input type="button" onclick="trajetPieton()" value="pieton"/>
-	<input type="button" onclick="trajetVelo()" value="velo"/>
-	<input type="button" onclick="trajetTAN()" value="tramway/Bus"/>
-	
-	<div id="Resultats_Google">
-	
+
+
+
+	<div id='<c:out value="${visibility_calculer}"/>' class="Calculer">
+		<div class=transition></div>
+		<form name="input"
+			action=<c:url value="http://localhost:8888/itineraire"/>
+			method="post">
+			<SELECT name="listedepart" id="listedepart" size="1">
+				<c:forEach items="${ListeDepart}" var="adresse">
+					<OPTION>
+						<c:out value="${adresse.adresse}"></c:out>
+					</OPTION>
+				</c:forEach>
+			</SELECT> <SELECT name="listearrivee" size="1">
+				<c:forEach items="${ListeArrivee}" var="adresse">
+					<OPTION>
+						<c:out value="${adresse.adresse}"></c:out>
+					</OPTION>
+				</c:forEach>
+			</SELECT> <input type="submit" class="submitItinerary"
+				value="Calculer l'itinéraire !">
+		</form>
+
+		<div id="pond_cost">
+			Coût : <input type="text" name="cost" id="cost"
+				value="<c:out value="${donnees.cost}"/>" tabindex="1" class="pond" />
+		</div>
+		<div id="pond_time">
+			Temps : <input type="text" name="time" id="time"
+				value="<c:out value="${donnees.time}"/>" tabindex="1" class="pond" />
+		</div>
+		<div id="pond_ecological">
+			Ecologique : <input type="text" name="ecolo" id="ecolo"
+				value="<c:out value="${donnees.ecological}"/>" tabindex="1"
+				class="pond" />
+		</div>
+		<div id="pond_calorie">
+			Calorie : <input type="text" name="calorie" id="calorie"
+				value="<c:out value="${donnees.calorie}"/>" tabindex="1"
+				class="pond" />
+		</div>
+	</div>
+
+
+
+	<div id='<c:out value="${visibility_resultat}"/>' class="Resultats">
+		<div class=transition></div>
+
+		<input type="button" onclick="trajetVoiture()" value="voiture" /> <input
+			type="button" onclick="trajetPieton()" value="pieton" /> <input
+			type="button" onclick="trajetVelo()" value="velo" /> <input
+			type="button" onclick="trajetTAN()" value="tramway/Bus" />
+
 		<div id="res_depart">
 			Adresse de départ :
 			<c:out value="${TrajetGoogleDriving.departure}"></c:out>
@@ -189,7 +204,6 @@ function trajetVelo()
 			Distance :
 			<c:out value="${TrajetGoogleDriving.distance}"></c:out>
 		</div>
-
 		<div id="res_consigne">
 			Trajet :
 			<c:forEach items="${TrajetGoogleDriving.steps}" var="step">
@@ -197,37 +211,11 @@ function trajetVelo()
 			</c:forEach>
 
 		</div>
-
-		</div>
-		<br/>
-		<!-- 
-		<div id="pond_cost">
-			Coût : 
-			<input type="text" name="cost" id="cost"
-					value="<c:out value="${donnees.cost}"/>" tabindex="1"
-					class="pond"/>
-		</div>
-		<div id="pond_time">
-			Temps : 
-			<input type="text" name="time" id="time"
-					value="<c:out value="${donnees.time}"/>" tabindex="1"
-					class="pond"/>
-		</div>
-		<div id="pond_ecological">
-			Ecologique : 
-			<input type="text" name="ecolo" id="ecolo"
-					value="<c:out value="${donnees.ecological}"/>" tabindex="1"
-					class="pond"/>
-		</div>
-		<div id="pond_calorie">
-			Calorie : 
-			<input type="text" name="calorie" id="calorie"
-					value="<c:out value="${donnees.calorie}"/>" tabindex="1"
-					class="pond"/>
-		</div>
-		-->
 	</div>
 
-	<div id='<c:out value="${carte}"/>' style="width: 100%; height: 100%"></div>
+
+
+
+	<div id='<c:out value="${visibility_carte}"/>' class="Carte" ></div>
 </body>
 </html>
