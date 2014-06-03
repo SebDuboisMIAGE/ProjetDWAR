@@ -1,0 +1,79 @@
+html {
+	height: 100%
+}
+
+body {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	background-color: #CECECE
+}
+
+lable {
+	font-size: 25px;
+	font-weight: bold
+}
+
+h1 {
+	text-align: center;
+	font-size: 75px;
+	font-weight: bold
+}
+
+
+
+#visible_calculer {
+	visibility: visible
+}
+
+#visible_resultat {
+	visibility: visible
+}
+
+#visible_carte {
+	visibility: visible
+}
+
+.Rechercher {
+	visibility: visible
+}
+
+.Calculer {
+	visibility: hidden
+}
+
+.Resultats {
+	visibility: hidden
+}
+
+.Carte {
+	visibility: hidden
+}
+
+IMG.displayed {
+	display: block;
+	margin-left: auto;
+	margin-right: auto
+}
+
+.transition {
+	height: 30px
+}
+
+.Recherche {
+	height: 25%;
+	margin-left: auto;
+	margin-right: auto;
+	width: 25em
+}
+
+.submitItinerary {
+	
+}
+
+.carte {
+	width: 60%;
+	height: 70%;
+	margin-left: auto;
+	margin-right: auto
+}
