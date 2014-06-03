@@ -16,14 +16,13 @@
 	src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA3ol1gtWbndHLBeXy0AWIDFDBx6JnLMZA&sensor=true">
 	
 </script>
-<!--
 <script type="text/javascript">
 	 function initialize() {
 		var latlng = new google.maps.LatLng('<c:out value="${TrajetGoogleDriving.departureGPS.lat}"/>', '<c:out value="${TrajetGoogleDriving.departureGPS.lng}"/>');//nantes
 
 		var mapOptions = {
 			center : latlng,
-			zoom : 12,
+			zoom : 8,
 			mapTypeId : google.maps.MapTypeId.ROADMAP};
 
 		var carte = new google.maps.Map(document.getElementById("<c:out value="${visibility_carte}"/>"),
@@ -78,7 +77,8 @@ function trajetVoiture()
 		zoom : 12,
 		mapTypeId : google.maps.MapTypeId.ROADMAP};
 
-	var carte = new google.maps.Map(document.getElementById("carte"),mapOptions);
+	var carte = new google.maps.Map(document.getElementById("<c:out value="${visibility_carte}"/>"),
+			mapOptions);
 	//création des marqueurs de départ et d'arrivée
 	var depart = new google.maps.Marker({
 		position : new google.maps.LatLng('<c:out value="${TrajetGoogleDriving.departureGPS.lat}"/>', '<c:out value="${TrajetGoogleDriving.departureGPS.lng}"/>'),
@@ -128,7 +128,8 @@ function trajetPieton()
 		zoom : 12,
 		mapTypeId : google.maps.MapTypeId.ROADMAP};
 
-	var carte = new google.maps.Map(document.getElementById("carte"),mapOptions);
+	var carte = new google.maps.Map(document.getElementById("<c:out value="${visibility_carte}"/>"),
+			mapOptions);
 	//création des marqueurs de départ et d'arrivée
 	var depart = new google.maps.Marker({
 		position : new google.maps.LatLng('<c:out value="${TrajetGoogleWalking.departureGPS.lat}"/>', '<c:out value="${TrajetGoogleWalking.departureGPS.lng}"/>'),
@@ -178,7 +179,8 @@ function trajetVelo()
 		zoom : 12,
 		mapTypeId : google.maps.MapTypeId.ROADMAP};
 
-	var carte = new google.maps.Map(document.getElementById("carte"),mapOptions);
+	var carte = new google.maps.Map(document.getElementById("<c:out value="${visibility_carte}"/>"),
+			mapOptions);
 	//création des marqueurs de départ et d'arrivée
 	var depart = new google.maps.Marker({
 		position : new google.maps.LatLng('<c:out value="${TrajetGoogleBicycling.departureGPS.lat}"/>', '<c:out value="${TrajetGoogleBicycling.departureGPS.lng}"/>'),
@@ -213,81 +215,13 @@ function trajetVelo()
 }
 
 </script>
- -->
 <script>
-	function initialize() {
-		var carte;
-		carte = initialize_A('<c:out value="${visibility_carte}"/>',
-				'<c:out value="${TrajetGoogleDriving.departureGPS.lat}"/>',
-				'<c:out value="${TrajetGoogleDriving.departureGPS.lng}"/>',
-				'<c:out value="${TrajetGoogleDriving.arrivalGPS.lat}"/>',
-				'<c:out value="${TrajetGoogleDriving.arrivalGPS.lng}"/>');
-		var parcours = new Array();
-		<c:forEach items="${TrajetGoogleDriving.steps}" var="step">
-		<c:forEach items="${step.way}" var="w">
-		pushElemTracer(parcours, '<c:out value="${w.lat}"/>',
-				'<c:out value="${w.lng}"/>');
-		</c:forEach>
-		</c:forEach>
-		tracer(parcours, carte);
-	}
-
-	function consignes() {
-		<c:forEach items="${TrajetGoogleDriving.steps}" var="step">
-		trajetConsigne('<c:out value="${step.consigne}"/>');
-		</c:forEach>
-	}
-	function initialize_A(id_carte, lat_dep, long_dep, lat_ar, long_ar) {
-		var latlng = new google.maps.LatLng(47.15, -1, 6079);// nantes
-
-		var mapOptions = {
-			center : latlng,
-			zoom : 8,
-			mapTypeId : google.maps.MapTypeId.ROADMAP
-		};
-
-		var carte = new google.maps.Map(document.getElementById(id_carte),
-				mapOptions);
-		// création des marqueurs de départ et d'arrivée
-		var depart = new google.maps.Marker({
-			position : new google.maps.LatLng(lat_dep, long_dep),
-			map : carte
-
-		});
-		var arrivee = new google.maps.Marker({
-			position : new google.maps.LatLng(lat_ar, long_ar),
-			map : carte
-		});
-		return carte;
-	}
-
-	function pushElemTracer(parcours, lat, long) {
-		parcours.push(new google.maps.LatLng(lat, long));
-	}
-
-	function tracer(tracer, carte) {
-		traceParcoursCar.setMap(carte);
-	}
-
-	function trajetIndic(depart, arrivee, duree, distance) {
-		document.getElementById('res_depart').innerHTML = "Adresse de départ : "
-				+ depart;
-		document.getElementById('res_arrivee').innerHTML = "Adresse de destination : "
-				+ arrivee;
-		document.getElementById('res_duree').innerHTML = "Durée : " + duree;
-		document.getElementById('res_distance').innerHTML = "Distance : "
-				+ distance;
-		consignes();
-	}
-	function trajetConsigne(consigne) {
-		document.getElementById('res_consigne').innerHTML = "Trajet : "
-				+ consigne;
-	}
+	
 </script>
 </head>
 <body onload="initialize()">
 
-	<h1>SmartTraveler</h1>
+	<h1>Smart Traveler</h1>
 	<IMG class="displayed" src="bannieretest.jpg" alt="banniere">
 	<div class=transition></div>
 	<div id='<c:out value="${visibility_rechercher}"/>' class="Recherche">
@@ -311,8 +245,6 @@ function trajetVelo()
 			<input type="submit" class="submitItinerary" value="Rechercher !">
 		</form>
 	</div>
-
-
 
 	<div id='<c:out value="${visibility_calculer}"/>' class="Calculer">
 		<div class=transition></div>
@@ -361,12 +293,9 @@ function trajetVelo()
 		<div class=transition></div>
 
 		<input type="button"
-			onclick="trajetIndic('<c:out value="${TrajetGoogleDriving.departure}"/>','<c:out value="${TrajetGoogleDriving.arrival}"/>','<c:out value="${TrajetGoogleDriving.duration}"/>','<c:out value="${TrajetGoogleDriving.distance}"/>')"
-			value="voiture" /> <input type="button"
-			onclick="trajetIndic('<c:out value="${TrajetGoogleWalking.departure}"/>','<c:out value="${TrajetGoogleWalking.arrival}"/>','<c:out value="${TrajetGoogleWalking.duration}"/>','<c:out value="${TrajetGoogleWalking.distance}"/>')"
-			value="pieton" /> <input type="button"
-			onclick="trajetIndic('<c:out value="${TrajetGoogleBiking.departure}"/>','<c:out value="${TrajetGoogleBiking.arrival}"/>','<c:out value="${TrajetGoogleBiking.duration}"/>','<c:out value="${TrajetGoogleBiking.distance}"/>')"
-			value="velo" /> <input type="button" onclick="trajetTAN()"
+			onclick="trajetVoiture()" value="voiture" /> <input type="button"
+			onclick="trajetPieton()" value="pieton" /> <input type="button"
+			onclick="trajetVelo()" value="velo" /> <input type="button" onclick="trajetTAN()"
 			value="tramway/Bus" />
 
 		<div id="res_depart">

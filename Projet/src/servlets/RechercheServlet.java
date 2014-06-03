@@ -53,27 +53,9 @@ public class RechercheServlet extends HttpServlet {
 		String arrivee = req.getParameter("to");
 		req.setAttribute("visibility_calculer", "visible_calculer");
 		
-		/* 
-		String cost = req.getParameter("cost");
-		if(cost == null){cost = "";}
-		String time = req.getParameter("time");
-		if(time == null){time = "";}
-		String ecolo = req.getParameter("ecolo");
-		if(ecolo == null){ecolo = "";}
-		String calorie = req.getParameter("calorie");
-		if(calorie == null){calorie = "";}
-		*/
-		
 		Donnees data = new Donnees();
 		data.setArrival(arrivee); 
 		data.setDeparture(departure);
-		
-		/*
-		data.setCost(cost.equals("") ? -1 : Integer.parseInt(cost));
-		data.setTime(time.equals("") ? -1 : Integer.parseInt(time));
-		data.setEcological(ecolo.equals("") ? -1 : Integer.parseInt(ecolo));
-		data.setCalorie(calorie.equals("") ? -1 : Integer.parseInt(calorie));
-		*/
 		
 		req.setAttribute("donnees", data);		
 				
@@ -89,9 +71,6 @@ public class RechercheServlet extends HttpServlet {
 			e.printStackTrace();
 		}		
 		
-		//Lecture des choix d'adresse
-		System.out.println(req.getParameter("listedepart"));
-
 		// Renvoit des données dans la page JSP
 		this.getServletContext().getRequestDispatcher("/index.jsp").forward(req,resp);
 

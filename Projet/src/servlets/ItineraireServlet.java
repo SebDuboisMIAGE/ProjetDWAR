@@ -41,22 +41,30 @@ public class ItineraireServlet extends HttpServlet{
 		resp.setContentType("text/html");
 		@SuppressWarnings("unused")
 		PrintWriter out = resp.getWriter();	
+
+		String departure = req.getParameter("from");
+		String arrivee = req.getParameter("to");
+		System.out.println(departure);
+		Donnees data = new Donnees();
+		data.setArrival(arrivee); 
+		data.setDeparture(departure);
 	
 		//Récupération des adresses de la liste déroulante
-		String departure = req.getParameter("listedepart");
-		String arrivee = req.getParameter("listearrivee");
+		String departureChoose = req.getParameter("listedepart");
+		String arriveeChoose = req.getParameter("listearrivee");
 		
+		req.setAttribute("donnees", data);
 		req.setAttribute("visibility_carte", "visible_carte");
 		req.setAttribute("visibility_calculer", "visible_calculer");
 		req.setAttribute("visibility_resultat", "visible_resultat");
 		
 		// Récupération des trajets (Google et Tan)
 		try {
-			TrajetGoogle trajetGoogleDriving = setTrajetGoogle(getTrajetGoogle(departure, arrivee, "driving"));
+			TrajetGoogle trajetGoogleDriving = setTrajetGoogle(getTrajetGoogle(departureChoose, arriveeChoose, "driving"));
 			req.setAttribute("TrajetGoogleDriving", trajetGoogleDriving);
-			TrajetGoogle trajetGoogleBiking = setTrajetGoogle(getTrajetGoogle(departure, arrivee, "bicycling"));
+			TrajetGoogle trajetGoogleBiking = setTrajetGoogle(getTrajetGoogle(departureChoose, arriveeChoose, "bicycling"));
 			req.setAttribute("TrajetGoogleBicycling", trajetGoogleBiking);
-			TrajetGoogle trajetGoogleWalking = setTrajetGoogle(getTrajetGoogle(departure, arrivee, "walking"));
+			TrajetGoogle trajetGoogleWalking = setTrajetGoogle(getTrajetGoogle(departureChoose, arriveeChoose, "walking"));
 			req.setAttribute("TrajetGoogleWalking", trajetGoogleWalking);
 			//Faire pareil pour la TAN
 		} catch (JSONException e1) {
