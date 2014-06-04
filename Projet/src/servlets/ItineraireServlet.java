@@ -2,6 +2,8 @@ package servlets;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -35,6 +37,7 @@ public class ItineraireServlet extends HttpServlet{
 	public static String prefix_url_geocode = "https://maps.google.com/maps/api/geocode/json";
 	public static String prefix_url_direction = "https://maps.googleapis.com/maps/api/directions/json";
 	public static String key ="AIzaSyA3ol1gtWbndHLBeXy0AWIDFDBx6JnLMZA";
+	public static String filepath_Stops = "stops.txt";
 
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException, ServletException {
@@ -66,8 +69,11 @@ public class ItineraireServlet extends HttpServlet{
 			req.setAttribute("TrajetGoogleBicycling", trajetGoogleBiking);
 			TrajetGoogle trajetGoogleWalking = setTrajetGoogle(getTrajetGoogle(departureChoose, arriveeChoose, "walking"));
 			req.setAttribute("TrajetGoogleWalking", trajetGoogleWalking);
-			//Faire pareil pour la TAN
-		} catch (JSONException e1) {
+			System.out.println(getAdresseTAN(departureChoose).getIdTAN());
+			System.out.println(getAdresseTAN(arriveeChoose).getIdTAN());
+			TrajetTAN trajetTAN = setTrajetTAN(getTrajetTAN(getAdresseTAN(departureChoose), getAdresseTAN(arriveeChoose)));
+			req.setAttribute("TrajetTan", trajetTAN);
+		} catch (Exception e1) {
 			// TODO
 			e1.printStackTrace();
 		}		
@@ -153,13 +159,87 @@ public class ItineraireServlet extends HttpServlet{
 	}
 	
 	/*
+	 * Récupère les adresses similaires à l'adresse en paramètre 
+	 * Renvoit un fichier JSON
+	 */
+	public JSONObject getAdresseTaN(String addresse) throws Exception {
+		
+		String urlParameters = "nom=" + URLEncoder.encode(addresse, "UTF-8")
+				+ "\"";
+		URL url;
+		HttpURLConnection connection = null;
+		
+			// Create connection
+			url = new URL(
+					"https://www.tan.fr/ewp/mhv.php/itineraire/address.json");
+
+			// set connection properties
+			connection = (HttpURLConnection) url.openConnection();
+			connection.setRequestMethod("POST");
+			connection.setRequestProperty("Content-Type",
+					"application/x-www-form-urlencoded");
+
+			connection.setRequestProperty("Content-Length",
+					"" + Integer.toString(urlParameters.getBytes().length));
+			connection.setRequestProperty("Content-Language", "en-US");
+			connection.setConnectTimeout(60000);// 60 s
+			connection.setReadTimeout(60000);// 60s
+			connection.setUseCaches(false);
+			connection.setDoInput(true);
+			connection.setDoOutput(true);
+
+			// Send request
+			DataOutputStream wr = new DataOutputStream(
+					connection.getOutputStream());
+			wr.writeBytes(urlParameters);
+			wr.flush();
+			wr.close();
+
+			// Get Response
+			InputStream is = connection.getInputStream();
+			BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+			String line;
+			StringBuffer response = new StringBuffer();
+			while ((line = rd.readLine()) != null) {
+				response.append(line);
+				response.append('\r');
+			}
+			rd.close();
+			JSONObject adresse = new JSONArray(response.toString()).getJSONObject(0);
+			return adresse;
+	}	
+	
+	/*
+	 * Créé une liste d'adresse TAN à partir d'un fichier JSON
+	 */
+	public AdresseTAN getAdresseTAN(String adresse) throws Exception{
+		
+		AdresseTAN adresseT = new AdresseTAN();
+		// get the first result
+		JSONArray list;
+		try {
+			JSONObject obj = getAdresseTaN(adresse);
+			list = obj.getJSONArray("lieux");
+			// Lecture de toutes les adresses trouvees			
+			JSONObject item = list.getJSONObject(0);
+			adresseT.setAdresse(item.getString("nom")+' '+item.getString("cp")+' '+item.getString("ville"));
+			adresseT.setIdTAN(item.getString("id"));
+		} catch (JSONException e) {
+			// TODO Bloc catch généré automatiquement
+			e.printStackTrace();
+		}
+		
+		return adresseT;
+	}	
+	
+	/*
 	 * Fonction permettant de récupérer un fichier JSON représentant le trajet TAN 
 	 * d'une adresse à une autre
 	 * Renvoit un JSON
 	 */
 	public JSONObject getTrajetTAN(AdresseTAN origine, AdresseTAN destination) throws Exception
 	{
-		String urlParameters = "depart=" + URLEncoder.encode(origine.getIdTAN(), "UTF-8") + "&arrive=" + URLEncoder.encode(destination.getIdTAN(), "UTF-8") + "&type=0&accessible=0&temps=" + URLEncoder.encode("2014-05-13 17:00","UTF-8") + "&retour=0"
+		String urlParameters = "depart=" + URLEncoder.encode(origine.getIdTAN(), "UTF-8") + "&arrive=" + URLEncoder.encode(destination.getIdTAN(), "UTF-8") + "&type=0&accessible=0&temps=" + URLEncoder.encode("2014-06-05 17:00","UTF-8") + "&retour=0"
 				+ "\"";
 		URL url;
 		HttpURLConnection connection = null;
@@ -213,6 +293,7 @@ public class ItineraireServlet extends HttpServlet{
 		// get the first result
 		itineraire.setDeparture(obj.getString("adresseDepart"));
 		itineraire.setArrival(obj.getString("adresseArrivee"));
+		//TODO Recuperer aussi les coordonnées GPS du depart et arrivee
 		itineraire.setHeureDepart(obj.getString("heureDepart"));
 		itineraire.setHeureArrivee(obj.getString("heureArrivee"));
 		itineraire.setDuration(obj.getString("duree"));
@@ -230,17 +311,59 @@ public class ItineraireServlet extends HttpServlet{
 			else{
 				step.setMarche(false);
 			}
-			JSONObject ligne = etape.getJSONObject("ligne");
-			step.setNumligne(ligne.getString("numLigne"));
-			JSONObject arretStop = etape.getJSONObject("arretStop");
-			step.setLibelleArret(arretStop.getString("libelle"));
+			JSONObject ligne = etape.optJSONObject("ligne");
+			if (ligne != null){
+				step.setNumligne(ligne.getString("numLigne"));
+			}
+			JSONObject arretStop = etape.optJSONObject("arretStop");
+			if (arretStop != null){
+				step.setLibelleArret(arretStop.getString("libelle"));
+			}
 			step.setHeureDepart(etape.getString("heureDepart"));
 			step.setHeureArrivee(etape.getString("heureArrivee"));
 			step.setDuree(etape.getString("duree"));
-
+			// Récupération des coordonnées GPS de l'arrêt
+			GPSCoordonate coordonnees;
+			try {
+				coordonnees = getGPSCoordonnateStopTAN(step.getLibelleArret(), filepath_Stops);
+				step.setCoordonnees(coordonnees);
+			} catch (FileNotFoundException e) {
+				// TODO Bloc catch généré automatiquement
+				e.printStackTrace();
+			}
+			
 			itineraire.setSteps(step);
 		}
 		return itineraire;
+	}
+	
+	public GPSCoordonate getGPSCoordonnateStopTAN(String nameStop, String pathFile) throws FileNotFoundException{
+		 
+		//filePath est une variable globale (fichier stops.txt) 
+		Scanner scanner=new Scanner(new File(pathFile));
+		boolean trouve = false;	
+		GPSCoordonate coord = new GPSCoordonate();
+		
+		// On boucle sur chaque champ detecté
+		while (scanner.hasNextLine() && !trouve) {
+		
+			String line = scanner.nextLine();
+			//traitement de la ligne 
+			//On verifie si l'arret coorespondant a la ligne correspond bien a celui recherché
+			String str[]=line.split(",");
+			//Dans ce tableau, le champ d'indice 3 correspond à la latitude
+			//et le champ d'indice 4 correspond à la longitude
+			String arret = str[1].substring(1,str[1].length()-1);
+			if (nameStop.equals(arret)){	
+				coord.setLat(Float.parseFloat(str[3]));
+				coord.setLng(Float.parseFloat(str[4]));
+				trouve = true;
+			}		
+		}
+		 
+		scanner.close();
+		return coord;
+
 	}
 	
 	/*

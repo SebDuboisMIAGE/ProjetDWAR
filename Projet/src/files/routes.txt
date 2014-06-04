@@ -1,0 +1,65 @@
+route_id,route_short_name,route_long_name,route_desc,route_type
+1-0,1,"Ligne  1",,0
+2-0,2,"Ligne  2",,0
+3-0,3,"Ligne  3",,0
+4-0,4,"Ligne  4",,0
+11-0,11,"Ligne 11",,3
+12-0,12,"Ligne 12",,3
+23-0,23,"Ligne 23",,3
+25-0,25,"Ligne 25",,3
+26-0,26,"Ligne 26",,3
+27-0,27,"Ligne 27",,3
+28-0,28,"Ligne 28",,3
+29-0,29,"Ligne 29",,3
+30-0,30,"Ligne 30",,3
+33-0,33,"Ligne 33",,3
+36-0,36,"Ligne 36",,3
+39-0,39,"Ligne 39",,3
+42-0,42,"Ligne 42",,3
+47-0,47,"Ligne 47",,3
+54-0,54,"Ligne 54",,3
+59-0,59,"Ligne 59",,3
+67-0,67,"Ligne 67",,3
+68-0,68,"Ligne Navette Gare de Bouaye",,3
+70-0,70,"Ligne 70",,3
+73-0,73,"Ligne 73",,3
+74-0,74,"Ligne 74",,3
+75-0,75,"Ligne 75",,3
+77-0,77,"Ligne 77",,3
+79-0,79,"Ligne 79",,3
+80-0,80,"Ligne 80",,3
+81-0,81,"Ligne 81",,3
+84-0,84,"Ligne 84",,3
+85-0,85,"Ligne 85",,3
+86-0,86,"Ligne 86",,3
+87-0,87,"Ligne 87",,3
+88-0,88,"Ligne 88",,3
+89-0,89,"Ligne 89",,3
+90-0,90,"Ligne 90",,3
+91-0,91,"Ligne 91",,3
+93-0,93,"Ligne 93",,3
+95-0,95,"Ligne 95",,3
+96-0,96,"Ligne 96",,3
+97-0,97,"Ligne 97",,3
+98-0,98,"Ligne 98",,3
+99-0,99,"Ligne 99",,3
+C1-0,C1,"Ligne C1",,3
+C2-0,C2,"Ligne C2",,3
+C3-0,C3,"Ligne C3",,3
+C4-0,C4,"Ligne C4",,3
+C5-0,C5,"Ligne C5",,3
+C6-0,C6,"Ligne C6",,3
+C7-0,C7,"Ligne C7",,3
+E1-0,E1,"Ligne Express Coueron",,3
+E4-0,E4,"Ligne Express Vertou",,3
+E5-0,E5,"Ligne Express Carquefou",,3
+E8-0,E8,"Ligne Express Le Pellerin",,3
+LU-0,LU,"Luciole",,3
+NA-0,NA,"Ligne Navette Aéroport",,3
+NL-0,NL,"Ligne Navibus",,3
+RA-0,RA,"Renforts Affrétés",,3
+RB-0,RB,"Renforts Le Bêle",,3
+RS-0,RS,"Renforts St Herblain",,3
+RT-0,RT,"Renforts Trentemoult",,3
+ZB-0,NB,"Ligne Navette Dépôt Le Bêle",,3
+ZT-0,ET,"Ligne Navette Dépôt Trentemoult",,3
