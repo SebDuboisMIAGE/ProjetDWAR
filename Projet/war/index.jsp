@@ -214,6 +214,86 @@ function trajetVelo()
 	traceParcoursCar.setMap(carte);
 }
 
+function trajetTAN() 
+{ 
+	document.getElementById('res_depart').innerHTML = "Adresse de départ :<c:out value="${TrajetTan.departure}"></c:out>";
+	document.getElementById('res_arrivee').innerHTML = "Adresse de destination :<c:out value="${TrajetTan.arrival}"></c:out>";
+	document.getElementById('res_duree').innerHTML = "Durée :<c:out value="${TrajetTan.duration}"></c:out>";
+	document.getElementById('res_distance').innerHTML = "Distance :<c:out value="0"></c:out>";
+	document.getElementById('res_consigne').innerHTML = "Trajet :<c:forEach items="${TrajetTan.steps}" var="step"><c:out value="OK"></c:out></c:forEach>";
+
+	//Raffraichissement de la map
+	var latlng = new google.maps.LatLng('<c:out value="${TrajetTan.departureGPS.lat}"/>', '<c:out value="${TrajetTan.departureGPS.lng}"/>');//nantes
+
+	var mapOptions = {
+		center : latlng,
+		zoom : 12,
+		mapTypeId : google.maps.MapTypeId.ROADMAP};
+
+	var carte = new google.maps.Map(document.getElementById("<c:out value="${visibility_carte}"/>"),
+			mapOptions);
+	//création des marqueurs de départ et d'arrivée
+	var depart = new google.maps.Marker({
+		position : new google.maps.LatLng('<c:out value="${TrajetTan.departureGPS.lat}"/>', '<c:out value="${TrajetTan.departureGPS.lng}"/>'),
+		map : carte
+		
+	});
+	var arrivee = new google.maps.Marker({
+		position : new google.maps.LatLng('<c:out value="${TrajetTan.arrivalGPS.lat}"/>', '<c:out value="${TrajetTan.arrivalGPS.lng}"/>'),
+		map : carte
+	});
+
+	//création de la polyline pour dessiner le trajet
+	var parcoursCar = new Array();
+	<c:forEach items="${TrajetTan.steps}" var="step">
+		<c:forEach items="${step.coordonnees}" var="w">
+			parcoursCar.push({
+		        location:new google.maps.LatLng('<c:out value="${w.lat}"/>', '<c:out value="${w.lng}"/>'),
+		        stopover:true}
+	       );
+			</c:forEach>
+	</c:forEach>
+
+	var request = {
+		      origin: "${TrajetTan.departureGPS.lat}, ${TrajetTan.departureGPS.lng}",
+		      destination: "${TrajetTan.arrivalGPS.lat}, ${TrajetTan.arrivalGPS.lng}",
+		      waypoints: parcoursCar,
+		      optimizeWaypoints: true,
+		      travelMode: google.maps.TravelMode.DRIVING
+		  };
+
+	busPath = new google.maps.Polyline({
+		strokeColor : "#FF0000",
+		strokeOpacity : 0.8,
+		strokeWeight : 5,
+		map : carte
+	});
+	
+	var directionsDisplay;
+	directionsDisplay = new google.maps.DirectionsRenderer({polylineOptions:busPath});
+	directionsDisplay.setMap(carte);
+
+	var directionsService = new google.maps.DirectionsService();
+
+	directionsService.route(request, function(response, status) {
+	    if (status == google.maps.DirectionsStatus.OK) {
+	      directionsDisplay.setDirections(response);
+	  }});  
+
+	
+	//var traceParcoursCar = new google.maps.Polyline({
+	//	path : parcoursCar,//chemin du tracé
+	//	strokeColor : "#00FF00",//couleur du tracé
+	//	strokeOpacity : 1.0,//opacité du tracé
+	//	strokeWeight : 2
+	//grosseur du tracé
+	//});
+
+	//lier le tracé à la carte
+	//ceci permet au tracé d'être affiché sur la carte
+	//traceParcoursCar.setMap(carte);
+}
+
 </script>
 <script>
 	
@@ -292,11 +372,10 @@ function trajetVelo()
 	<div id='<c:out value="${visibility_resultat}"/>' class="Resultats">
 		<div class=transition></div>
 
-		<input type="button"
-			onclick="trajetVoiture()" value="voiture" /> <input type="button"
-			onclick="trajetPieton()" value="pieton" /> <input type="button"
-			onclick="trajetVelo()" value="velo" /> <input type="button" onclick="trajetTAN()"
-			value="tramway/Bus" />
+		<input type="button" onclick="trajetVoiture()" value="voiture" /> <input
+			type="button" onclick="trajetPieton()" value="pieton" /> <input
+			type="button" onclick="trajetVelo()" value="velo" /> <input
+			type="button" onclick="trajetTAN()" value="tramway/Bus" />
 
 		<div id="res_depart">
 			Adresse de départ :

@@ -104,8 +104,8 @@ public class RechercheServlet extends HttpServlet {
 					"location");
 
 			GPSCoordonate coord = new GPSCoordonate();
-			coord.setLat(loc.getDouble("lat"));
-			coord.setLng(loc.getDouble("lng"));
+			coord.setLat(loc.getString("lat"));
+			coord.setLng(loc.getString("lng"));
 
 			return coord;
 		} catch (Exception e) {

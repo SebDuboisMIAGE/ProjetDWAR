@@ -7,6 +7,8 @@ public class TrajetTAN {
 	//TODO
 	private String duration; // en m
 	private String departure;
+	private GPSCoordonate departureGPS;
+	private GPSCoordonate arrivalGPS;
 	private String arrival;
 	private String heureDepart;
 	private String heureArrivee;
@@ -59,6 +61,18 @@ public class TrajetTAN {
 			this.steps = new ArrayList<EtapeTAN>();
 		}
 		this.steps.add(step);
+	}
+	public GPSCoordonate getDepartureGPS() {
+		return departureGPS;
+	}
+	public void setDepartureGPS(GPSCoordonate departureGPS) {
+		this.departureGPS = departureGPS;
+	}
+	public GPSCoordonate getArrivalGPS() {
+		return arrivalGPS;
+	}
+	public void setArrivalGPS(GPSCoordonate arrivalGPS) {
+		this.arrivalGPS = arrivalGPS;
 	}
 	
 	

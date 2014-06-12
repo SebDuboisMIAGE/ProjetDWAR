@@ -1,11 +1,13 @@
 package beans;
 
+import java.util.List;
+
 public class EtapeTAN {
 
 	private boolean marche;
 	private String numligne;
 	private String libelleArret;
-	private GPSCoordonate coordonnees;
+	private List<GPSCoordonate> coordonnees;
 	private String heureDepart;
 	private String heureArrivee;
 	private String duree;
@@ -46,10 +48,10 @@ public class EtapeTAN {
 	public void setDuree(String duree) {
 		this.duree = duree;
 	}
-	public GPSCoordonate getCoordonnees() {
+	public List<GPSCoordonate> getCoordonnees() {
 		return coordonnees;
 	}
-	public void setCoordonnees(GPSCoordonate coordonnees) {
+	public void setCoordonnees(List<GPSCoordonate> coordonnees) {
 		this.coordonnees = coordonnees;
 	}
 	

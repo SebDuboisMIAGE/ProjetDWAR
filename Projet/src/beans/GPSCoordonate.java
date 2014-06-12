@@ -1,22 +1,22 @@
 package beans;
 
 public class GPSCoordonate {
-	private double lat;
-	private double lng;
+	private String lat;
+	private String lng;
 	
-	public double getLat() {
+	public String getLat() {
 		return lat;
 	}
 	
-	public double getLng() {
+	public String getLng() {
 		return lng;
 	}
 	
-	public void setLat(double lat) {
+	public void setLat(String lat) {
 		this.lat = lat;
 	}
 	
-	public void setLng(double lng) {
+	public void setLng(String lng) {
 		this.lng = lng;
 	}
 }
