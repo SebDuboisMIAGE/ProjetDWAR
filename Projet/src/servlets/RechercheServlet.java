@@ -11,21 +11,24 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import beans.AdresseTAN;
 import beans.Donnees;
-import beans.EtapeTAN;
-import beans.GPSCoordonate;
-import beans.TrajetGoogle;
-import beans.EtapeGoogle;
-import beans.TrajetTAN;
-
+import beans.Historique;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.Filter;
+import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.FilterPredicate;
+import com.google.appengine.api.users.User;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
 import com.google.appengine.labs.repackaged.org.json.JSONArray;
 import com.google.appengine.labs.repackaged.org.json.JSONException;
 import com.google.appengine.labs.repackaged.org.json.JSONObject;
@@ -67,53 +70,36 @@ public class RechercheServlet extends HttpServlet {
 			List<AdresseTAN> listeChoixArrivee = getChoixAdresseTAN(getAdresseTaN(arrivee));
 			req.setAttribute("ListeArrivee", listeChoixArrivee);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}		
+		
+		req.setAttribute("drag", 0);
+		
+		UserService userService = UserServiceFactory.getUserService();
+        User user = userService.getCurrentUser();
+        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+        if (user != null) {   
+			Filter FilterId = new FilterPredicate("id", FilterOperator.EQUAL, user.getEmail());
+			Query q = new Query("Historique").setFilter(FilterId);
+
+			// Use PreparedQuery interface to retrieve results
+			PreparedQuery pq = datastore.prepare(q);
+			List<Historique> listeHisto = new ArrayList<Historique>();
+			Historique histo;
+			for (Entity result : pq.asIterable()) {
+				histo = new Historique();
+				histo.setDepart((String) result.getProperty("depart"));
+				histo.setArrivee((String) result.getProperty("arrivee"));
+				listeHisto.add(histo);
+			}        
+			req.setAttribute("historique", listeHisto);
+        }   
 		
 		// Renvoit des données dans la page JSP
 		this.getServletContext().getRequestDispatcher("/index.jsp").forward(req,resp);
 
 	};
 
-	/*
-	 * Fonction permettant de renvoyer les coordonnées GPS d'une adresse -
-	 * Latitude - Longitude
-	 */
-	public GPSCoordonate getJSONwithAdress(String adress) {
-		try {
-			String url_build = prefix_url_geocode
-					+ "?address="
-					+ URLEncoder.encode(adress, "UTF-8")
-					+ "&sensor=false&key="
-					+ key;
-			URL url = new URL(url_build);
-			// read from the URL
-			Scanner scan = new Scanner(url.openStream());
-			String str = new String();
-			while (scan.hasNext())
-				str += scan.nextLine();
-			scan.close();
-
-			// build a JSON object
-			JSONObject obj = new JSONObject(str);
-
-			// get the first result
-			JSONObject res = obj.getJSONArray("results").getJSONObject(0);
-			JSONObject loc = res.getJSONObject("geometry").getJSONObject(
-					"location");
-
-			GPSCoordonate coord = new GPSCoordonate();
-			coord.setLat(loc.getString("lat"));
-			coord.setLng(loc.getString("lng"));
-
-			return coord;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-	
 	/*
 	 * Récupère les adresses similaires à l'adresse en paramètre 
 	 * Renvoit un fichier JSON
@@ -183,7 +169,6 @@ public class RechercheServlet extends HttpServlet {
 				liste.add(adresse);
 			}
 		} catch (JSONException e) {
-			// TODO Bloc catch généré automatiquement
 			e.printStackTrace();
 		}
 		

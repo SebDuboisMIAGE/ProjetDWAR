@@ -1,8 +1,18 @@
 package servlets;
 
 import java.io.BufferedReader;
+
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.users.User;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Query.Filter;
+
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,11 +22,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.lang.*;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -32,16 +40,22 @@ import beans.Donnees;
 import beans.EtapeGoogle;
 import beans.EtapeTAN;
 import beans.GPSCoordonate;
+import beans.Historique;
 import beans.TrajetGoogle;
 import beans.TrajetTAN;
 
+import com.google.appengine.api.datastore.Query.FilterPredicate;
+import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.PreparedQuery;
+@SuppressWarnings("serial")
 public class ItineraireServlet extends HttpServlet{
 	
 	public static String prefix_url_geocode = "https://maps.google.com/maps/api/geocode/json";
 	public static String prefix_url_direction = "https://maps.googleapis.com/maps/api/directions/json";
 	public static String key ="AIzaSyA3ol1gtWbndHLBeXy0AWIDFDBx6JnLMZA";
-	public static String filepath_Stops = "stops.txt";
-	public static String filepath_Shapes = "shapes.txt";
+	public static String filepath_Stops = "files/stops.txt";
+	public static String filepath_Shapes = "files/shapes.txt";
 
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException, ServletException {
@@ -59,6 +73,39 @@ public class ItineraireServlet extends HttpServlet{
 		String departureChoose = req.getParameter("listedepart");
 		String arriveeChoose = req.getParameter("listearrivee");
 		
+		//Enregistrement historique
+		UserService userService = UserServiceFactory.getUserService();
+        User user = userService.getCurrentUser();
+        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+        if (user != null) {   
+			Entity recherche = new Entity("Historique");		
+	
+			recherche.setProperty("id", user.getEmail());
+			recherche.setProperty("depart", departureChoose);
+			recherche.setProperty("arrivee", arriveeChoose);
+			datastore.put(recherche);
+			Filter FilterId = new FilterPredicate("id", FilterOperator.EQUAL, user.getEmail());
+			Query q = new Query("Historique").setFilter(FilterId);
+
+			// Use PreparedQuery interface to retrieve results
+			PreparedQuery pq = datastore.prepare(q);
+			List<Historique> listeHisto = new ArrayList<Historique>();
+			Historique histo;
+			int nb = 0;
+			//récupéartion des 3 dernières recherches !!!
+			for (Entity result : pq.asIterable()) {
+				if (nb != 3){
+					histo = new Historique();
+					histo.setDepart((String) result.getProperty("depart"));
+					histo.setArrivee((String) result.getProperty("arrivee"));
+					listeHisto.add(histo);
+					nb++;
+				}
+			}        
+			req.setAttribute("historique", listeHisto);
+        }        
+		//Fin enregistrement 
+		
 		req.setAttribute("donnees", data);
 		req.setAttribute("visibility_carte", "visible_carte");
 		req.setAttribute("visibility_calculer", "visible_calculer");
@@ -75,9 +122,10 @@ public class ItineraireServlet extends HttpServlet{
 			TrajetTAN trajetTAN = setTrajetTAN(getTrajetTAN(getAdresseTAN(departureChoose), getAdresseTAN(arriveeChoose)));
 			req.setAttribute("TrajetTan", trajetTAN);
 		} catch (Exception e1) {
-			// TODO
 			e1.printStackTrace();
 		}		
+		
+		req.setAttribute("drag", 1);
 		
 		// Renvoit des données dans la page JSP
 		this.getServletContext().getRequestDispatcher("/index.jsp").forward(req,resp);
@@ -226,7 +274,6 @@ public class ItineraireServlet extends HttpServlet{
 			adresseT.setAdresse(item.getString("nom")+' '+item.getString("cp")+' '+item.getString("ville"));
 			adresseT.setIdTAN(item.getString("id"));
 		} catch (JSONException e) {
-			// TODO Bloc catch généré automatiquement
 			e.printStackTrace();
 		}
 		
@@ -244,7 +291,8 @@ public class ItineraireServlet extends HttpServlet{
 				+ "\"";
 		URL url;
 		HttpURLConnection connection = null;
-		
+		System.out.println(origine.getIdTAN());
+		System.out.println(destination.getIdTAN());
 			// Create connection
 			url = new URL(
 					"https://www.tan.fr/ewp/mhv.php/itineraire/resultat.json");
@@ -282,7 +330,9 @@ public class ItineraireServlet extends HttpServlet{
 				response.append('\r');
 			}
 			rd.close();
+			System.out.println(response.toString());
 			JSONObject itineraire = new JSONArray(response.toString()).getJSONObject(0);
+			
 			return itineraire;
 	}
 	
@@ -295,19 +345,16 @@ public class ItineraireServlet extends HttpServlet{
 		// get the first result
 		itineraire.setDeparture(obj.getString("adresseDepart"));
 		itineraire.setArrival(obj.getString("adresseArrivee"));
-		//TODO Recuperer aussi les coordonnées GPS du depart et arrivee
 		itineraire.setHeureDepart(obj.getString("heureDepart"));
 		itineraire.setHeureArrivee(obj.getString("heureArrivee"));
 		itineraire.setDuration(obj.getString("duree"));
 		itineraire.setCorrespondance(obj.getString("correspondance"));
-		//ERROR
 		itineraire.setDepartureGPS(getGPSCoordonateGoogle(itineraire.getDeparture()));
 		itineraire.setArrivalGPS(getGPSCoordonateGoogle(itineraire.getArrival()));
-		
+		JSONObject arretDep = obj.getJSONObject("arretDepart");
 		JSONArray etapes = obj.getJSONArray("etapes");
 		
 		//Sauvegarde adresse précédente
-		String adressePrec = itineraire.getDeparture();
 		GPSCoordonate gpsAdressePrec = itineraire.getDepartureGPS();
 		
 		//Dernier arrêt 
@@ -319,51 +366,72 @@ public class ItineraireServlet extends HttpServlet{
 			JSONObject etape = etapes.getJSONObject(i);
 			if (etape.getString("marche") == "true"){ // si on doit marcher
 				step.setMarche(true);
-				// Jusqu'à l'arrêt
-				JSONObject arretStop = etape.optJSONObject("arretStop");
+				// Jusqu'à l'arrêt				
+				JSONObject arretStop = etape.optJSONObject("arretStop");	
+				
 				if (arretStop != null){
 					step.setLibelleArret(arretStop.getString("libelle"));
+					System.out.println("Allez arrêt : " + step.getLibelleArret());
+					
 				}
 
 				arretPrec = step.getLibelleArret();
 			}
 			else{
-				System.out.println("Bus");
 				step.setMarche(false); // alors parcours de tous les arrêts
 				// Sur quelle ligne TAN ?
 				JSONObject ligne = etape.optJSONObject("ligne");
+				
 				if (ligne != null){
-					System.out.println(ligne.getString("numLigne"));
 					step.setNumligne(ligne.getString("numLigne"));
 				}
 				JSONObject arretStop = etape.optJSONObject("arretStop");
 				if (arretStop != null){
-					System.out.println(arretStop.getString("libelle"));
 					step.setLibelleArret(arretStop.getString("libelle"));
-				}		
+				}			
 				
 				//recuperer coordonnees de l'ancien step qui était marche
-				if (itineraire.getSteps().size() > 0){
-					//if (itineraire.getSteps().get(itineraire.getSteps().size()-1).isMarche())
-					//{
-						System.out.println(arretPrec);
-						System.out.println(step.getNumligne());
+				//if (itineraire.getSteps().size() > 0){
+				if(itineraire.getSteps() != null)
+				{
+					if (itineraire.getSteps().get(itineraire.getSteps().size()-1).getMarche())
+					{
+						System.out.println("GPS dep : lat : " + gpsAdressePrec.getLat()+ " lng : " + gpsAdressePrec.getLng());
 						GPSCoordonate stepPrec = getGPSCoordonnateTANLigne(arretPrec, step.getNumligne());
-						System.out.println(gpsAdressePrec.getLat());
-						TrajetGoogle t = setTrajetGoogle(getTrajetGoogle(gpsAdressePrec.getLat() +',' + gpsAdressePrec.getLng(), stepPrec.getLat() + ','+ stepPrec.getLng(), "walking"));
-						List<GPSCoordonate> way = chargerList(t);
+						System.out.println("GPS arr : lat : " + stepPrec.getLat() + " lng : " + stepPrec.getLng());
+						List<GPSCoordonate> way = new ArrayList<GPSCoordonate>();
+						way.add(gpsAdressePrec);
+						way.add(stepPrec);
 						itineraire.getSteps().get(itineraire.getSteps().size()-1).setCoordonnees(way);
 						gpsAdressePrec = stepPrec;
-					//}
+					}
 				}
+				//}
 				GPSCoordonate coordonnees = null;
+				GPSCoordonate coordArretLigne = null;
 				if (step.getNumligne() != null){
+					if (itineraire.getSteps() == null){
+						coordArretLigne = getGPSCoordonnateTANLigne(arretDep.getString("libelle"), step.getNumligne());
+						arretDep = null;
+					}
+					else{
+						coordArretLigne =  getGPSCoordonnateTANLigne(itineraire.getSteps().get(itineraire.getSteps().size()-1).getLibelleArret(), step.getNumligne());
+					}	
 					coordonnees = getGPSCoordonnateTANLigne(step.getLibelleArret(), step.getNumligne());
-					step.setCoordonnees(getListeArret(gpsAdressePrec, coordonnees, step.getNumligne()));
+					// La fonction getListeArret est à revoir
+					step.setCoordonnees(getListeArret(coordArretLigne, coordonnees, step.getNumligne()));
+					System.out.println("Départ : ");
+					System.out.println(coordArretLigne.getLat() + ", " + coordArretLigne.getLng());
+					System.out.println("Arrivée : " + step.getLibelleArret());
+					System.out.println(coordonnees.getLat() + ", " + coordonnees.getLng());
 				}
-				
-				System.out.println("dep : " + gpsAdressePrec.getLat());
-				System.out.println("arr : " + coordonnees.getLat());
+				else {
+					coordonnees = getGPSCoordonnateTANLigne(step.getLibelleArret(), step.getNumligne());
+					System.out.println("Départ : ");
+					System.out.println(gpsAdressePrec.getLat() + ", " + gpsAdressePrec.getLng());
+					System.out.println("Arrivée : " + step.getLibelleArret());
+					System.out.println(coordonnees.getLat() + ", " + coordonnees.getLng());
+				}				
 				//Récupérer tous les arrêts entre deux arrêts d'une ligne
 				
 				gpsAdressePrec = coordonnees;
@@ -377,6 +445,7 @@ public class ItineraireServlet extends HttpServlet{
 			//ajout de la step
 			itineraire.setSteps(step);
 		}
+		
 		return itineraire;
 	}
 	
@@ -385,6 +454,7 @@ public class ItineraireServlet extends HttpServlet{
 		for(int i = 0; i != t.getSteps().size() ; i++){
 			for(int j =0; j != t.getSteps().get(i).getWay().size(); j++){
 				res.add(t.getSteps().get(i).getWay().get(j));
+				System.out.println("liste Google : " + t.getSteps().get(i).getWay().get(j).getLat());
 			}
 		}
 		return res;
@@ -421,65 +491,72 @@ public class ItineraireServlet extends HttpServlet{
 	}
 	
 	public GPSCoordonate getGPSCoordonnateTANLigne(String nameStop, String numLigne) throws FileNotFoundException, UnsupportedEncodingException{
-		 
+		 		
 		//filePath est une variable globale (fichier stops.txt) 
-		Scanner scanner=new Scanner(new File(filepath_Stops));
+		BufferedReader scanner = new BufferedReader(new InputStreamReader(
+                new FileInputStream(filepath_Stops), "UTF8"));
+		@SuppressWarnings("unused")
 		boolean trouve = false;	
 		GPSCoordonate coord = null;
 		List<GPSCoordonate> listeArret = new ArrayList<GPSCoordonate>();
 		GPSCoordonate res = new GPSCoordonate();
-		
+		String line;
 		// On boucle sur chaque champ detecté
-		while (scanner.hasNextLine()) {
-			coord = new GPSCoordonate();
-			String line = scanner.nextLine();
-			//traitement de la ligne 
-			//On verifie si l'arret coorespondant a la ligne correspond bien a celui recherché
-			String str[]=line.split(",");
-			//Dans ce tableau, le champ d'indice 3 correspond à la latitude
-			//et le champ d'indice 4 correspond à la longitude
-			String arret = str[1].substring(1,str[1].length()-1);
-			arret = new String(arret.getBytes(), "UTF-8");
-			if (nameStop.trim().equals(arret.trim())){	
-				coord.setLat(str[3]);
-				coord.setLng(str[4]);
-				listeArret.add(coord);
-				trouve = true;
-			}		
-		}
-		 
-		scanner.close();		
+		try {
+			while ((line = scanner.readLine()) != null) {
+				coord = new GPSCoordonate();				
+				//traitement de la ligne 
+				//On verifie si l'arret coorespondant a la ligne correspond bien a celui recherché
+				String str[]=line.split(",");
+				//Dans ce tableau, le champ d'indice 3 correspond à la latitude
+				//et le champ d'indice 4 correspond à la longitude
+				String arret = str[1].substring(1,str[1].length()-1);
+				if (nameStop.trim().equals(arret.trim())){	
+					coord.setLat(str[3]);
+					coord.setLng(str[4]);
+					listeArret.add(coord);
+					trouve = true;
+				}		
+			}
+			scanner.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}		 
+				
 		boolean trouveBon = false;
 		
 		for(int i=0; i < listeArret.size() ; i++){
-			scanner=new Scanner(new File(filepath_Shapes));
+			scanner = new BufferedReader(new InputStreamReader(
+	                new FileInputStream(filepath_Shapes), "UTF8"));
 			// On boucle sur chaque champ detecté
-			while (scanner.hasNextLine() && !trouveBon) {
-			
-				String line = scanner.nextLine();
-				
-				//traitement de la ligne 
-				//On découpe les éléments de la ligne
-				String str[]=line.split(",");
-				//Dans ce tableau, le champ d'indice 2 correspond à la latitude
-				//et le champ d'indice 3 correspond à la longitude
-				//le champ d'indice 1 correspond à la ligne (juste les deux premieres lettres)
-				
-				String ligne;
-				if (str[0].length() == 5){
-					ligne = str[0].substring(0,1);
+			try {
+				while ((line = scanner.readLine()) != null && !trouveBon) {
+					
+					//traitement de la ligne 
+					//On découpe les éléments de la ligne
+					String str[]=line.split(",");
+					//Dans ce tableau, le champ d'indice 2 correspond à la latitude
+					//et le champ d'indice 3 correspond à la longitude
+					//le champ d'indice 1 correspond à la ligne (juste les deux premieres lettres)
+					
+					String ligne;
+					if (str[0].length() == 5){
+						ligne = str[0].substring(0,1);
+					}
+					else{
+						ligne = str[0].substring(0,2);
+					}
+					
+					if (str[1].trim().equals(listeArret.get(i).getLat().trim()) && str[2].trim().equals(listeArret.get(i).getLng().trim()) && numLigne.trim().equals(ligne.trim())){
+						res.setLat(str[1]);
+						res.setLng(str[2]);
+						trouveBon = true;
+					}									
 				}
-				else{
-					ligne = str[0].substring(0,2);
-				}
-				
-				if (str[1].trim().equals(listeArret.get(i).getLat().trim()) && str[2].trim().equals(listeArret.get(i).getLng().trim()) && numLigne.trim().equals(ligne.trim())){
-					res.setLat(str[1]);
-					res.setLng(str[2]);
-					trouveBon = true;
-				}									
-			}
-			scanner.close();
+				scanner.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}			
 		}
 		
 		return res;
@@ -508,7 +585,6 @@ public GPSCoordonate getGPSCoordonateGoogle(String adresse)
 
 	// build a JSON object
 	JSONObject obj = new JSONObject(str);
-	System.out.println(str);
 	JSONObject res = obj.getJSONArray("results").getJSONObject(0);
     JSONObject loc = res.getJSONObject("geometry").getJSONObject("location");
     
@@ -522,10 +598,14 @@ public GPSCoordonate getGPSCoordonateGoogle(String adresse)
 public List<GPSCoordonate> getListeArret(GPSCoordonate depart, GPSCoordonate arrivee, String numLigne) throws FileNotFoundException{
 	
 	//filePath est une variable globale (fichier shapes.txt) 
+	@SuppressWarnings("resource")
 	Scanner scanner=new Scanner(new File(filepath_Shapes));
 	boolean trouvePremier = false;
 	boolean trouveDernier = false;
 	List<GPSCoordonate> res = new ArrayList<GPSCoordonate>();
+	
+	System.out.println(depart.getLat());
+	String idParcoursCourant = "";
 	
 	// On boucle sur chaque champ detecté
 	while (scanner.hasNextLine() && !trouveDernier) {
@@ -545,42 +625,61 @@ public List<GPSCoordonate> getListeArret(GPSCoordonate depart, GPSCoordonate arr
 		else{
 			ligne = str[0].substring(0,2);
 		}
+		// str[0] est un identifiant du parcours (car plusieurs parcours possible)
 		
-		if (ligne.trim().equals(numLigne.trim())){		
 		
-			if (!trouvePremier){				
-				// si c'est la bonne ligne alors il faut vérifier la bonne coordonnées
-				if ((depart.getLat().trim().equals(str[1].trim()) && depart.getLng().trim().equals(str[2].trim())) || (arrivee.getLat().trim().equals(str[1].trim()) && arrivee.getLng().trim().equals(str[2].trim()))){
-					GPSCoordonate coordonnees = new GPSCoordonate();
-					coordonnees.setLat(str[1]);
-					coordonnees.setLng(str[2]);
-					System.out.println(str[1]);
-					System.out.println(str[2]);
-					res.add(coordonnees);
-					trouvePremier = true;
+		if (ligne.trim().equals(numLigne.trim())){
+			
+			if (str[0].trim().equals(idParcoursCourant.trim()) || idParcoursCourant == "")
+			{
+				if (!trouvePremier){
+					// si c'est la bonne ligne alors il faut vérifier la bonne coordonnées
+					if ((depart.getLat().trim().equals(str[1].trim()) && depart.getLng().trim().equals(str[2].trim())) || (arrivee.getLat().trim().equals(str[1].trim()) && arrivee.getLng().trim().equals(str[2].trim()))){
+						
+						GPSCoordonate coordonnees = new GPSCoordonate();
+						coordonnees.setLat(str[1]);
+						coordonnees.setLng(str[2]);
+						System.out.println(line);
+						res.add(coordonnees);
+						idParcoursCourant = str[0];
+						trouvePremier = true;
+					}
+				}
+				else {
+					if ((depart.getLat().trim().equals(str[1].trim()) && depart.getLng().trim().equals(str[2].trim()) && !str[1].trim().equals(res.get(0).getLat().trim()) && !str[2].trim().equals(res.get(0).getLng().trim())) || ((arrivee.getLat().trim().equals(str[1].trim()) && arrivee.getLng().trim().equals(str[2].trim()) && !str[1].trim().equals(res.get(0).getLat().trim()) && !str[2].trim().equals(res.get(0).getLng().trim())))){
+						trouveDernier = true;
+						System.out.println("Dernier : ");
+					}	
+					GPSCoordonate coordonneesInter = new GPSCoordonate();
+					System.out.println(line);
+					//Test si deja ajoute
+					if (!res.get(res.size()-1).getLat().trim().equals(str[1].trim()) && !res.get(res.size()-1).getLng().trim().equals(str[2].trim())){
+						coordonneesInter.setLat(str[1]);
+						coordonneesInter.setLng(str[2]);		
+						res.add(coordonneesInter);
+					}								
 				}
 			}
-			else {
-				if ((depart.getLat().trim().equals(str[1].trim()) && depart.getLng().trim().equals(str[2].trim()) && !str[1].trim().equals(res.get(0).getLat().trim()) && !str[2].trim().equals(res.get(0).getLng().trim())) || ((arrivee.getLat().trim().equals(str[1].trim()) && arrivee.getLng().trim().equals(str[2].trim()) && !str[1].trim().equals(res.get(0).getLat().trim()) && !str[2].trim().equals(res.get(0).getLng().trim())))){
-					trouveDernier = true;
-					System.out.println("Dernier ");
-				}	
-				GPSCoordonate coordonnees = new GPSCoordonate();
-				coordonnees.setLat(str[1]);
-				coordonnees.setLng(str[2]);				
-				System.out.println(str[1]);
-				System.out.println(str[2]);
-				res.add(coordonnees);
-				res.add(coordonnees);					
-			}				
-		}		
+			else
+			{
+				trouvePremier = false;
+				idParcoursCourant = "";
+				res.clear();
+			}
+		}	
+		
 	}
-	
+
 	if(!res.get(0).getLat().trim().equals(depart.getLat().trim()) && !res.get(0).getLng().trim().equals(depart.getLng().trim())){
 		List<GPSCoordonate> result = new ArrayList<GPSCoordonate>();
 		for(int i=res.size()-1; i>=0; i--){
 		    result.add(res.get(i));}
 		res = result;
+	}
+	//Lecture de la liste des coordonnées
+	
+	for (int j = 0; j != res.size(); j++){
+		System.out.println("liste : " + res.get(j).getLat());
 	}
 	
 	return res;

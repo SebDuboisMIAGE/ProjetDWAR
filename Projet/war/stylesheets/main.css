@@ -1,3 +1,4 @@
+
 html {
 	height: 100%
 }
@@ -20,17 +21,125 @@ h1 {
 	font-weight: bold
 }
 
+#Rech {
+	width:20%;
+}
 
+
+#connexion {
+	width: 100%;
+	height: 25px;
+    padding: 10px;
+    background-color: #F0FFFF;
+    color: #fff;
+    z-index:2;
+}
+
+#banniereRecherche {
+    width: 100%;
+	height: 145px;
+    padding: 10px;
+    background-color: rgba(255,255,255,0.7);
+    color: #fff;
+    z-index:2;	
+}
+#banniereRecherche a.rechercher,
+#banniereRecherche a.fermer {
+    padding: 5px 5px;
+    background: #555;
+    color: #fff;
+    text-decoration: none;
+    z-index:2;
+}
+
+#banniereRecherche a.fermer {
+    display:none;
+}
+
+#volet_clos:target #banniereRecherche {
+    top: -135px;
+}
+
+#banniereRecherche {
+    position: fixed;
+    top: 0px;
+}
+#banniereRecherche a.rechercher ,
+#banniereRecherche a.fermer {
+    position: absolute;
+    left:45%;
+    top: 160px;
+	width:80px;
+	text-align:center;
+    border-radius: 0 0 8px 8px;
+}
+
+#banniereRecherche {
+    -webkit-transition: all .5s ease-in;
+    transition: all .5s ease-in;
+}
+
+#banniereRecherche:target {
+    top: -160px;
+}
+
+#banniereRecherche:target a.rechercher {
+    display: none;
+}
+
+#banniereRecherche:target a.fermer {
+    display: block;
+}
+
+#firstSearch {
+	height:50px;
+	width:50%;
+	position:center;
+	background-color: #6495ED;	
+	border-radius:5px;
+	text-align:center; 
+    vertical-align: middle;
+}
+
+#listeDeroulante {
+	height:50px;
+	width:50%;
+	position:center;
+	background-color: #6495ED;	
+	border-radius:5px;
+	text-align:center; 
+    vertical-align: middle;
+}
+
+#to {
+	border-radius:2px;
+	text-align:center; 
+	vertical-align:middle;
+}
+
+#from {
+	border-radius:2px;
+	padding-left:10px;
+	text-align:center; 
+	vertical-align:middle;
+}
+
+#Search {
+	float:left;
+	padding-left:10px;
+	padding-top:12px;
+}
+
+#firstForm {
+	color:white;
+	font: Arial
+}
 
 #visible_calculer {
 	visibility: visible
 }
 
 #visible_resultat {
-	visibility: visible
-}
-
-#visible_carte {
 	visibility: visible
 }
 
@@ -43,10 +152,6 @@ h1 {
 }
 
 .Resultats {
-	visibility: hidden
-}
-
-.Carte {
 	visibility: hidden
 }
 
@@ -68,12 +173,202 @@ IMG.displayed {
 }
 
 .submitItinerary {
-	
-}
+	color:white;
+	font: Arial;
+	width:auto; 
+	height: 80%;
+	text-align:center; 
+	display: inline-block; 
+	float:right; 
+	margin:4 15px 0 0; 
+	font-size: 1.6em; 
+	border-radius:7px; 
+	box-shadow: 0 0 1px rgba( 0, 0, 0, 0.2), 0 -1px 0 rgba( 255, 255, 255, 0.1); 
+	font-size: 0.85em; 
+	width:120px; 
+	vertical-align:middle;
+	text-shadow: 0px 1px 0px rgba( 255, 255, 255, 0.3);
+	}
+
+.submitItinerary, .submitItinerary:active{
+	background: #3C98CF;
+	background: -webkit-linear-gradient( #3C98CF, #2D74A0); 
+	background: -moz-linear-gradient( #3C98CF, #2D74A0); 
+	background: -ms-linear-gradient( #3C98CF, #2D74A0); 
+	background: -o-linear-gradient( #3C98CF, #2D74A0); 
+	background: linear-gradient( #3C98CF, #2D74A0);
+	}
+.submitItinerary:hover {
+	background: #3CA1D3;
+	background: -webkit-linear-gradient( #3CA1D3, #3386AF);
+	background: -moz-linear-gradient( #3CA1D3, #3386AF);
+	background: -ms-linear-gradient( #3CA1D3, #3386AF);
+	background: -o-linear-gradient( #3CA1D3, #3386AF);
+	background: linear-gradient( #3CA1D3, #3386AF);
+	}
+.submitItinerary:active {box-shadow: 1px 1px 10px #1E516B inset, 0 1px 0 rgba( 255, 255, 255, 0.4);}
+
+.submitItinerary2 {
+	color:white;
+	font: Arial;
+	width:auto; 
+	height: 80%;
+	text-align:center; 
+	display: inline-block; 
+	float:right; 
+	margin:4 15px 0 0; 
+	font-size: 1.6em; 
+	border-radius:7px; 
+	box-shadow: 0 0 1px rgba( 0, 0, 0, 0.2), 0 -1px 0 rgba( 255, 255, 255, 0.1); 
+	font-size: 0.85em; 
+	width:150px; 
+	vertical-align:middle;
+	text-shadow: 0px 1px 0px rgba( 255, 255, 255, 0.3);
+	}
+
+.submitItinerary2, .submitItinerary2:active{
+	background: #3C98CF;
+	background: -webkit-linear-gradient( #3C98CF, #2D74A0); 
+	background: -moz-linear-gradient( #3C98CF, #2D74A0); 
+	background: -ms-linear-gradient( #3C98CF, #2D74A0); 
+	background: -o-linear-gradient( #3C98CF, #2D74A0); 
+	background: linear-gradient( #3C98CF, #2D74A0);
+	}
+.submitItinerary2:hover {
+	background: #3CA1D3;
+	background: -webkit-linear-gradient( #3CA1D3, #3386AF);
+	background: -moz-linear-gradient( #3CA1D3, #3386AF);
+	background: -ms-linear-gradient( #3CA1D3, #3386AF);
+	background: -o-linear-gradient( #3CA1D3, #3386AF);
+	background: linear-gradient( #3CA1D3, #3386AF);
+	}
+.submitItinerary2:active {box-shadow: 1px 1px 10px #1E516B inset, 0 1px 0 rgba( 255, 255, 255, 0.4);}
 
 .carte {
-	width: 60%;
-	height: 70%;
-	margin-left: auto;
-	margin-right: auto
+	width: 100%;
+	height: 100%;
+	z-index:1;
 }
+
+#draggable { border-radius:15px; background-color: rgba(255,255,255,0.7); width:25%; background-color:white; height: 40%; border:1px; z-index:2; display:none; top:-70%; float:right; padding : 10 10 10 10; }  
+table
+{
+	border-collapse: collapse;
+	border : 3px #1E90FF dashed;
+}
+table > tr:first-child > td:first-child {
+	border-top-left-radius: 14px;
+}
+
+table > tr:first-child > td:last-child {
+	border-top-right-radius: 14px;
+}
+
+table > tr:last-child > td:first-child {
+	border-bottom-left-radius: 14px;
+}
+
+table > tr:last-child > td:last-child {
+	border-bottom-right-radius: 14px;
+}		
+
+td
+{
+	border: 2px solid #1E90FF;	
+	text-align: center;
+	background-color:white;
+	opacity:0.7;
+}
+tr
+{
+	border-radius : 5px;			
+}
+th
+{
+	border: 3px solid white;
+	background-color : #1E90FF;
+	color : white;
+	text : Arial;
+	padding: 5px 5px 5px 5px;
+	opacity:0.7;
+}
+
+#volet {
+    width: 250px;
+    height: 45%;
+    padding: 10px;
+    background-color: rgba(255,255,255,0.7);	
+	z-index:4;
+}
+#volet a.ouvrir,
+#volet a.fermer2 {
+    padding: 10px 25px;
+    background: #555;
+    color: #fff;
+    text-decoration: none;
+}
+
+#volet {
+    position: fixed;
+    left: -270px; top: 175px;
+}
+#volet a.ouvrir,
+#volet a.fermer2 {
+    position: absolute;
+    right: -70px;
+    top: 80px;
+
+    /* quelques styles CSS3 */
+    -ms-transform: rotate(270deg);
+    -moz-transform: rotate(270deg);
+    -webkit-transform: rotate(270deg);
+    transform: rotate(270deg);
+
+    border-radius: 0 0 8px 8px;
+}
+
+#volet {
+    -webkit-transition: all .5s ease-in;
+    transition: all .5s ease-in;
+}
+
+#volet:target {
+    left: 0;
+}
+
+#volet a.fermer2 {
+    display: none;
+}
+
+#histo_clos:target #volet {
+    left: -270px;
+}
+
+#volet:target a.ouvrir {
+    display: none;
+}
+#volet:target a.fermer2 {
+    display: block;
+}
+
+#banniereRecherche {
+	color:black;
+}
+
+#products-table
+{
+ width: 200px;
+ height: 200px;
+ overflow: auto;
+}
+
+tbody {
+ width: 200px;
+ height: 400px;
+ overflow: auto;
+}
+
+
+
+
+

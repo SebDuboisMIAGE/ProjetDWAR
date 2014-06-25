@@ -4,7 +4,7 @@ import java.util.List;
 
 public class EtapeTAN {
 
-	private boolean marche;
+	public boolean marche;
 	private String numligne;
 	private String libelleArret;
 	private List<GPSCoordonate> coordonnees;
@@ -12,7 +12,7 @@ public class EtapeTAN {
 	private String heureArrivee;
 	private String duree;
 	
-	public boolean isMarche() {
+	public boolean getMarche() {
 		return marche;
 	}
 	public void setMarche(boolean marche) {
