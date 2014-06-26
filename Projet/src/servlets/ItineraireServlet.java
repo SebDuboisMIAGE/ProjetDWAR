@@ -23,6 +23,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Scanner;
 
@@ -286,13 +287,25 @@ public class ItineraireServlet extends HttpServlet{
 	 * Renvoit un JSON
 	 */
 	public JSONObject getTrajetTAN(AdresseTAN origine, AdresseTAN destination) throws Exception
-	{
-		String urlParameters = "depart=" + URLEncoder.encode(origine.getIdTAN(), "UTF-8") + "&arrive=" + URLEncoder.encode(destination.getIdTAN(), "UTF-8") + "&type=0&accessible=0&temps=" + URLEncoder.encode("2014-06-05 17:00","UTF-8") + "&retour=0"
+	{		
+		String day = String.valueOf((Calendar.getInstance().get(Calendar.DAY_OF_MONTH)));
+		if (day.length() == 1) day='0' + day;
+		int mont = Calendar.getInstance().get(Calendar.MONTH);
+		mont++;
+		if (mont == 13) mont = 1;
+		String month = String.valueOf(mont);
+		if (month.length() == 1) month='0' + month;
+		System.out.println(month);
+		String heure = String.valueOf((Calendar.getInstance().get(Calendar.HOUR_OF_DAY)));
+		if (heure.length() == 1) heure='0' + heure;
+		String minute = String.valueOf((Calendar.getInstance().get(Calendar.MINUTE)));
+		if (minute.length() == 1) minute='0' + minute;
+		String d = String.valueOf((Calendar.getInstance().get(Calendar.YEAR))) + "-" + month + "-" + day;
+		String urlParameters = "depart=" + URLEncoder.encode(origine.getIdTAN(), "UTF-8") + "&arrive=" + URLEncoder.encode(destination.getIdTAN(), "UTF-8") + "&type=0&accessible=0&temps=" + URLEncoder.encode(d,"UTF-8") + "&retour=0"
 				+ "\"";
+		System.out.println(urlParameters);
 		URL url;
 		HttpURLConnection connection = null;
-		System.out.println(origine.getIdTAN());
-		System.out.println(destination.getIdTAN());
 			// Create connection
 			url = new URL(
 					"https://www.tan.fr/ewp/mhv.php/itineraire/resultat.json");
@@ -325,14 +338,12 @@ public class ItineraireServlet extends HttpServlet{
 			String line;
 			StringBuffer response = new StringBuffer();
 			while ((line = rd.readLine()) != null) {
-				System.out.println(line);
 				response.append(line);
+				System.out.println(line);
 				response.append('\r');
 			}
 			rd.close();
-			System.out.println(response.toString());
 			JSONObject itineraire = new JSONArray(response.toString()).getJSONObject(0);
-			
 			return itineraire;
 	}
 	
